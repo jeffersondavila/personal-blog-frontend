@@ -1,0 +1,41 @@
+; personal-blog-frontend
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+max_line_length = 100
+
+[*.{ts,tsx,js,jsx,mjs,cjs}]
+indent_size = 2
+quote_type = single
+
+[*.{css,scss,less}]
+indent_size = 2
+
+[*.{html,svg}]
+indent_size = 2
+
+[*.{json,jsonc}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+max_line_length = off
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[{Dockerfile,Dockerfile.*,*.dockerfile}]
+indent_size = 2
+
+[*.{sh,bash}]
+indent_size = 2
+end_of_line = lf
+
+[Makefile]
+indent_style = tab
