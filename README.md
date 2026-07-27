@@ -34,8 +34,8 @@ Interfaz del blog personal. **React + TypeScript + Vite.**
 | **Fase** | Etapa 00 — Fundación y Gobierno |
 | **Implementación** | No iniciada |
 | **Primera tarea de este repositorio** | `Task/006-Fundacion-Frontend-React` (Etapa 02) |
-| **Commits** | 0 — el repositorio aún no tiene commit inicial |
-| **Rama activa** | `main` (sin commits) |
+| **Ramas** | `main`, `dev`, `Task/001-Inicializar-Workspace-y-Roadmap` |
+| **Rama activa** | `main` |
 
 Estado vigente del proyecto:
 [`personal-blog-infra/docs/project-management/STATUS.md`](../personal-blog-infra/docs/project-management/STATUS.md)
@@ -62,8 +62,8 @@ entorno en tiempo de build. Detalle completo en
 Una tarea que afecta a varios repositorios usa **el mismo nombre de rama** en todos.
 No se hace merge automático hacia `main`.
 
-> Actualmente el repositorio no tiene commits, por lo que `dev` y las ramas `Task/*`
-> todavía no existen como referencias Git.
+> `main` contiene únicamente el commit inicial vacío. El trabajo de `Task/001` está
+> integrado en `dev` y llegará a `main` mediante pull request.
 
 ## 6. Fuente de verdad de la planificación
 
