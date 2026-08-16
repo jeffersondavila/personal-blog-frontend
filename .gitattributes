@@ -1,0 +1,80 @@
+# ---------------------------------------------------------------------------
+# personal-blog-frontend — politica de finales de linea (Task/005.6)
+#
+# Por que existe este archivo ANTES de que exista el codigo
+#
+# Git para Windows instala `core.autocrlf=true` a nivel de sistema. Con esa
+# configuracion, un checkout convierte a CRLF el contenido del arbol de trabajo
+# aunque el indice guarde LF. En `personal-blog-backend` eso hacia fallar
+# `ruff format --check .` en todos los archivos Python por una diferencia de
+# fin de linea, no de formato.
+#
+# `Task/006-Fundacion-Frontend-React` traera Prettier y ESLint, que tienen
+# exactamente el mismo punto debil: comprueban el arbol de trabajo. Esta
+# politica se instala ahora, con el repositorio todavia vacio de codigo, para
+# que ese problema no vuelva a aparecer. **No se crea ningun archivo de
+# aplicacion en `Task/005.6`.**
+#
+# `.editorconfig` ya declaraba `end_of_line = lf`, pero solo gobierna al editor:
+# no interviene en el checkout de Git. Este archivo es la capa que faltaba.
+#
+# La politica NO depende de la configuracion personal de cada maquina: los
+# atributos del repositorio tienen prioridad sobre `core.autocrlf`.
+# ---------------------------------------------------------------------------
+
+# Todo archivo de texto se normaliza a LF en el indice y se extrae con LF.
+# `text=auto` deja que Git detecte binarios y no los toque.
+* text=auto eol=lf
+
+# --- Codigo de aplicacion (llega en Task/006) ------------------------------
+*.ts        text eol=lf
+*.tsx       text eol=lf
+*.js        text eol=lf
+*.jsx       text eol=lf
+*.mjs       text eol=lf
+*.cjs       text eol=lf
+*.json      text eol=lf
+*.css       text eol=lf
+*.scss      text eol=lf
+*.less      text eol=lf
+*.html      text eol=lf
+*.svg       text eol=lf
+
+# --- Documentacion y configuracion -----------------------------------------
+*.md        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.txt       text eol=lf
+*.sh        text eol=lf
+.gitignore  text eol=lf
+.editorconfig text eol=lf
+.env.example  text eol=lf
+
+# --- Lockfiles -------------------------------------------------------------
+# Se versionan y deben ser identicos byte a byte en cualquier maquina.
+package-lock.json  text eol=lf
+pnpm-lock.yaml     text eol=lf
+yarn.lock          text eol=lf
+
+# --- Excepcion tecnica: scripts por lotes de Windows -----------------------
+# `cmd.exe` puede interpretar mal etiquetas y `goto` si el archivo llega con
+# LF. No existe ninguno hoy; la regla evita que el primero que aparezca nazca
+# roto.
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# --- Binarios: nunca se convierten -----------------------------------------
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.avif      binary
+*.ico       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.otf       binary
+*.eot       binary
+*.mp4       binary
+*.pdf       binary
