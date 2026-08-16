@@ -31,10 +31,10 @@ Interfaz del blog personal. **React + TypeScript + Vite.**
 
 | Campo | Valor |
 | --- | --- |
-| **Fase** | Etapa 00 — Fundación y Gobierno |
+| **Fase** | ETAPA 02 — Fundaciones de las Aplicaciones (**en curso**) |
 | **Implementación** | No iniciada |
 | **Primera tarea de este repositorio** | `Task/006-Fundacion-Frontend-React` (Etapa 02) |
-| **Ramas** | `main`, `dev`, `Task/001-Inicializar-Workspace-y-Roadmap` |
+| **Ramas** | `main`, `dev` |
 | **Rama activa** | `main` |
 
 Estado vigente del proyecto:
@@ -55,15 +55,19 @@ entorno en tiempo de build. Detalle completo en
 
 | Rama | Propósito |
 | --- | --- |
-| `main` | Versión estable o liberable. |
-| `dev` | Integración de tareas aprobadas. |
-| `Task/<numero>-<nombre>` | Trabajo aislado de una tarea, creado desde `dev`. |
+| `main` | Versión estable o liberable. **Única base permitida de las ramas Task.** |
+| `dev` | **Solo integración** de tareas aprobadas. **Nunca base de una Task.** |
+| `Task/<numero>-<nombre>` | Trabajo aislado de una tarea, creado **desde `main`**. |
 
-Una tarea que afecta a varios repositorios usa **el mismo nombre de rama** en todos.
-No se hace merge automático hacia `main`.
+> **Invariante crítico:** toda rama `Task/<...>` nace desde `main` actualizado y limpio.
+> `dev` nunca es base de una Task. Motivo y validaciones:
+> [WORKFLOW §2.1](../personal-blog-infra/docs/project-management/WORKFLOW.md).
 
-> `main` contiene únicamente el commit inicial vacío. El trabajo de `Task/001` está
-> integrado en `dev` y llegará a `main` mediante pull request.
+Una tarea que afecta a varios repositorios usa **el mismo nombre de rama** en todos, y
+**todas nacen de `main`**. No se hace merge automático hacia `main`.
+
+> El trabajo de `Task/001` se fusionó en `main` mediante el pull request `#1`; `main` y
+> `dev` tienen el mismo contenido. La rama `Task/001` ya no existe.
 
 ## 6. Fuente de verdad de la planificación
 
