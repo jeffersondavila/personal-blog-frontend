@@ -1,0 +1,20 @@
+# Artefactos generados y dependencias.
+node_modules/
+dist/
+coverage/
+
+# Generado por npm; no se edita a mano.
+package-lock.json
+
+# Markdown: fuera del alcance de Prettier a proposito.
+#
+# Los tres repositorios del proyecto comparten un estilo de Markdown escrito a
+# mano —tablas compactas, lineas ajustadas manualmente— y esa documentacion es
+# la fuente de verdad del proyecto. Aplicar Prettier solo aqui rescribiria los
+# documentos de este repositorio y dejaria `personal-blog-frontend` con un
+# estilo distinto al de `personal-blog-backend` y `personal-blog-infra`, sin
+# que nadie haya decidido ese cambio.
+#
+# Si en el futuro se quiere formatear Markdown, es una decision de los tres
+# repositorios a la vez, no un efecto secundario de la fundacion del frontend.
+*.md

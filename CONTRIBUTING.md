@@ -1,6 +1,6 @@
 # Guía de contribución — personal-blog-frontend
 
-> La implementación aún no ha comenzado. Esta guía fija las reglas que aplicarán desde
+> Las reglas de esta guía están vigentes: la fundación del frontend existe desde
 > `Task/006-Fundacion-Frontend-React`.
 
 ---
@@ -64,20 +64,51 @@ Tipos: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `ci`, `build`, `style
 
 ---
 
-## 5. Estándares de código (a partir de `Task/006`)
+## 5. Estándares de código
 
 | Aspecto | Herramienta / regla |
 | --- | --- |
-| Lenguaje | TypeScript en modo estricto |
-| Lint y formato | Se fijan en `Task/006` |
-| Pruebas | Se fijan en `Task/006` |
+| Lenguaje | TypeScript 5.9 en modo estricto |
+| Lint | ESLint 10 con `typescript-eslint`, reglas que consultan tipos |
+| Formato | Prettier 3 |
+| Pruebas | Vitest 4 + Testing Library + jsdom |
 | Longitud de línea | 100 caracteres |
 | Indentación | 2 espacios |
 | Fin de línea | LF |
 | Comillas | Simples en TypeScript/JavaScript |
 
-Antes de marcar una tarea como lista: lint, type-check, tests y build de producción,
-todos sin errores.
+El reparto entre las dos herramientas es deliberado: **ESLint juzga corrección**
+—reglas de React, de los hooks y del sistema de tipos— y **Prettier juzga formato**.
+`eslint-config-prettier` desactiva en ESLint toda regla de formato, de modo que nunca
+hay dos veredictos contradictorios sobre el mismo archivo.
+
+Prettier **no formatea Markdown** a propósito: los tres repositorios comparten un estilo
+de documentación escrito a mano, y aplicarlo solo aquí dejaría este repositorio con un
+estilo distinto sin que nadie lo haya decidido. El motivo está en `.prettierignore`.
+
+### Comandos
+
+| Comando | Qué comprueba |
+| --- | --- |
+| `npm run lint` | Corrección: React, hooks y tipos. |
+| `npm run typecheck` | Tipos, sin generar nada. |
+| `npm run format:check` | Formato, sin modificar nada. |
+| `npm run test:run` | Suite completa, una pasada. |
+| `npm run build` | Tipos y build de producción. |
+
+Antes de marcar una tarea como lista, los cinco deben terminar sin errores.
+
+### Reglas de pruebas
+
+- Las pruebas viven **junto al archivo que prueban** (`env.ts` y `env.test.ts`).
+- **Ninguna prueba toca la red.** `fetch` se inyecta en el cliente HTTP; no se
+  reemplaza el `fetch` global.
+- **Ninguna prueba depende del `.env` de quien la ejecute.** La configuración se recibe
+  como argumento, nunca se lee de `import.meta.env` dentro de una prueba.
+- **Ninguna prueba depende del orden.** Mocks, globales y DOM se limpian después de cada
+  una; esa limpieza está configurada en `vite.config.ts` y `src/test/setup.ts`.
+- Una corrección de defecto empieza por la prueba que lo reproduce, y esa prueba se
+  queda en la suite.
 
 ---
 
