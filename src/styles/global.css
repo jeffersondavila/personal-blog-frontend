@@ -1,0 +1,32 @@
+/*
+ * Estilos globales minimos.
+ *
+ * El sistema de diseno del proyecto —tokens, tipografia, escala de espaciado,
+ * componentes— es `Task/013`. Aqui solo hay lo imprescindible para que la
+ * pantalla de fundacion sea legible; no se establece ninguna decision visual
+ * que `Task/013` tenga que deshacer.
+ */
+
+:root {
+  color-scheme: light dark;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+  padding: 2rem 1.5rem;
+}
+
+main {
+  margin: 0 auto;
+  max-width: 42rem;
+}
+
+code {
+  font-family: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
+}
