@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    // `eslint.config.js` es JavaScript, pero ESLint necesita que forme parte de
+    // un proyecto de TypeScript para poder analizarlo con reglas que consultan
+    // tipos. Sin esto, ESLint falla al llegar a su propia configuracion.
+    "allowJs": true,
+    "checkJs": true,
+
+    "composite": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "erasableSyntaxOnly": true
+  },
+  "include": ["vite.config.ts", "eslint.config.js"]
+}
