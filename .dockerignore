@@ -1,0 +1,49 @@
+# ---------------------------------------------------------------------------
+# personal-blog-frontend — .dockerignore
+#
+# Reduce el contexto de construccion y, sobre todo, impide que un `.env` real o
+# un artefacto local acabe dentro de la imagen. Las variables `VITE_*` no son
+# secretas, pero un `.env.local` puede contener valores de la maquina que no
+# deben viajar en el contexto.
+# ---------------------------------------------------------------------------
+
+# Dependencias y artefactos: se instalan y se generan dentro de la imagen.
+node_modules/
+dist/
+coverage/
+
+# Configuracion local
+.env
+.env.*
+!.env.example
+
+# Control de versiones y metadatos
+.git/
+.gitignore
+.gitattributes
+.github/
+
+# Documentacion y configuracion de desarrollo
+README.md
+CONTRIBUTING.md
+.editorconfig
+.vscode/
+.idea/
+
+# Cache de herramientas
+.eslintcache
+*.tsbuildinfo
+
+# Artefactos y temporales
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.orig
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
