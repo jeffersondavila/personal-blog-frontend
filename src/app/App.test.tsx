@@ -8,7 +8,7 @@
  */
 import { render, screen } from '@testing-library/react';
 import { createMemoryRouter } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { App } from './App';
 import { routes } from './routes';
@@ -21,6 +21,26 @@ function renderApp(initialPath: string) {
   const router = createMemoryRouter(routes, { initialEntries: [initialPath] });
   return render(<App config={CONFIG} router={router} />);
 }
+
+// Desde `Task/007` la pantalla inicial consulta `GET /health` al montarse. Sin
+// este doble, la suite intentaria una peticion real: la regla del proyecto es
+// que las pruebas no tocan la red. Que la consulta responda o no es
+// irrelevante aqui; su comportamiento se prueba en `HomePage.test.tsx`.
+beforeEach(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({ status: 'ok', service: 'backend', version: '0.1.0' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    ),
+  );
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('App', () => {
   it('monta y muestra la pantalla de fundacion en la ruta inicial', async () => {
