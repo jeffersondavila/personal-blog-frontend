@@ -1,32 +1,21 @@
 /*
- * Estilos globales minimos.
+ * Punto de entrada de los estilos globales.
  *
- * El sistema de diseno del proyecto —tokens, tipografia, escala de espaciado,
- * componentes— es `Task/013`. Aqui solo hay lo imprescindible para que la
- * pantalla de fundacion sea legible; no se establece ninguna decision visual
- * que `Task/013` tenga que deshacer.
+ * Este archivo no define estilos: compone las dos capas del sistema de diseno
+ * en el orden en que deben cargarse. `main.tsx` sigue importando unicamente
+ * `global.css`, de modo que la fundacion del frontend (`Task/006`) no cambia
+ * su punto de montaje.
+ *
+ * 1. `tokens.css`      — vocabulario: color, tipografia, espaciado, forma,
+ *                        layout, foco y movimiento. Debe ir PRIMERO: todo lo
+ *                        demas lo consume.
+ * 2. `foundation.css`  — defaults del documento, tipografia base, enlaces,
+ *                        medios y la estrategia unica de foco visible.
+ *
+ * Los componentes NO se estilan aqui: cada uno lleva su propio CSS Module
+ * (`src/components/<Nombre>/<Nombre>.module.css`), que consume estos mismos
+ * tokens. La razon de esa separacion esta en la ficha `TASK-013`, seccion 6.G.
  */
 
-:root {
-  color-scheme: light dark;
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    sans-serif;
-  line-height: 1.5;
-}
-
-body {
-  margin: 0;
-  padding: 2rem 1.5rem;
-}
-
-main {
-  margin: 0 auto;
-  max-width: 42rem;
-}
-
-code {
-  font-family: ui-monospace, 'Cascadia Code', 'Consolas', monospace;
-}
+@import './tokens.css';
+@import './foundation.css';

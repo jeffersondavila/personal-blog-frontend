@@ -2,9 +2,10 @@
 
 Interfaz del blog personal. **React + TypeScript + Vite.**
 
-> **Estado: fundación.** El proyecto arranca, enruta, construye y tiene suite de
-> pruebas, pero todavía no hay contenido ni panel administrativo. La pantalla de
-> inicio es provisional y está identificada como tal.
+> **Estado: fundación + sistema de diseño.** El proyecto arranca, enruta, construye y
+> tiene suite de pruebas, y desde `Task/013` cuenta con tokens, fundación global y
+> primitivas compartidas. Todavía **no** hay contenido ni panel administrativo: la
+> pantalla de inicio sigue siendo provisional y está identificada como tal.
 
 ---
 
@@ -41,12 +42,16 @@ Lo que la fundación entrega:
 | Modelo de error de la capa HTTP | `src/services/http/httpError.ts` |
 | Pantalla provisional de fundación | `src/pages/HomePage.tsx` |
 | Página 404 | `src/pages/NotFoundPage.tsx` |
+| Tokens de diseño | `src/styles/tokens.css` |
+| Fundación global: tipografía, foco, motion | `src/styles/foundation.css` |
+| Primitivas compartidas | `src/components/` |
+| Superficie pública del sistema de diseño | `src/components/index.ts` |
+| Cálculo de contraste (WCAG) | `src/lib/color/contrast.ts` |
 
 Lo que **todavía no existe**, con su tarea propietaria:
 
 | Falta | Tarea |
 | --- | --- |
-| Sistema de diseño, tokens y componentes | `Task/013` |
 | Páginas y navegación del sitio público | `Task/014` |
 | Panel administrativo y editor Markdown | `Task/015` |
 | Autenticación y sesión | `Task/011`, `Task/015` |
@@ -56,6 +61,40 @@ Lo que **todavía no existe**, con su tarea propietaria:
 
 Estado vigente del proyecto:
 [`personal-blog-infra/docs/project-management/STATUS.md`](../personal-blog-infra/docs/project-management/STATUS.md)
+
+## 3.1 Sistema de diseño
+
+Desde `Task/013`. **Sin dependencias de terceros**: CSS Modules —nativos de Vite— y CSS
+Custom Properties.
+
+```ts
+import { Badge, Button, Card, Container, Stack } from './components';
+```
+
+| Pieza | Dónde | Regla |
+| --- | --- | --- |
+| Tokens | `src/styles/tokens.css` | Única fuente de color, tipografía, espaciado, forma, layout, foco y movimiento. |
+| Fundación | `src/styles/foundation.css` | Defaults del documento y **estrategia única de foco visible**. |
+| Primitivas | `src/components/` | `Container`, `Stack`, `Button`, `Card`, `Badge`. |
+| Superficie pública | `src/components/index.ts` | Punto de entrada previsto; no se importan archivos internos. |
+
+Reglas que la suite hace cumplir automáticamente
+(`src/styles/designSystem.guards.test.ts`):
+
+- Ningún componente define un color propio: todos vienen de los tokens.
+- Ningún `var(--…)` apunta a un token inexistente.
+- Ningún CSS suprime el `outline` ni redefine el foco por su cuenta.
+- Ninguna primitiva usa media queries de ancho: el responsive es intrínseco.
+
+El contraste de la paleta se verifica con ratios reales en `src/styles/contrast.test.ts`.
+
+### Ver el sistema en el navegador
+
+Con el servidor de desarrollo en marcha, `/__design-system` muestra tokens, tipografía,
+espaciado y primitivas. **Existe solo en desarrollo**: la ruta y su página no forman
+parte del build de producción.
+
+---
 
 ## 4. Stack
 
@@ -138,14 +177,15 @@ Antes de marcar una tarea como lista deben terminar sin errores: `lint`, `typech
 src/
 ├── app/          Composición global: raíz, router y contexto de configuración.
 ├── pages/        Una pantalla por ruta. Ensamblan, no implementan.
+├── components/   Sistema de diseño: primitivas compartidas, sin dominio ni HTTP.
 ├── services/     Única capa que habla HTTP.
-├── lib/          Utilidades puras y sin estado, incluida la configuración.
-├── styles/       Estilos globales.
+├── lib/          Utilidades puras y sin estado: configuración y contraste.
+├── styles/       Tokens de diseño y estilos globales.
 ├── test/         Preparación común de la suite.
 └── main.tsx      Punto de entrada.
 ```
 
-La estructura completa prevista —`features/`, `entities/`, `components/`, `hooks/`,
+La estructura completa prevista —`features/`, `entities/`, `hooks/`,
 `assets/`— está definida en
 [`software-architecture.md`](../personal-blog-infra/docs/architecture/software-architecture.md),
 sección 4. Aquí solo existen las carpetas que ya tienen contenido: una carpeta vacía no
@@ -205,8 +245,10 @@ hermanas dentro del mismo directorio de trabajo.)*
 
 ## 13. Tareas previstas para este repositorio
 
-`Task/013`, `Task/014`, `Task/015`, `Task/019`, `Task/037`, y participación en
-`Task/007`, `Task/016`, `Task/018`, `Task/022`, `Task/034`, `Task/036`, `Task/040`.
+`Task/014`, `Task/015`, `Task/019`, `Task/037`, y participación en
+`Task/016`, `Task/018`, `Task/022`, `Task/034`, `Task/036`, `Task/040`.
+
+`Task/006`, `Task/007` y `Task/013` ya están entregadas en este repositorio.
 
 ## 14. Contribución
 

@@ -1,0 +1,67 @@
+/*
+ * Estilos de `Badge`.
+ *
+ * Cada tono usa la terna completa de su categoria en `tokens.css` —texto,
+ * superficie y borde—, y los tres pares estan verificados contra los umbrales
+ * de WCAG en `contrast.test.ts`: el texto a 4.5:1 sobre su superficie y el
+ * borde a 3:1 sobre el lienzo.
+ *
+ * El borde no es decorativo en este componente: junto con la silueta del glifo
+ * es lo que distingue un tono de otro sin recurrir al color.
+ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+
+  padding-block: var(--space-2xs);
+  padding-inline: var(--space-xs);
+
+  border: var(--border-width) solid;
+  border-radius: var(--radius-sm);
+
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  /* El texto de un badge no se parte: es una etiqueta corta, no un parrafo. */
+  white-space: nowrap;
+}
+
+/*
+ * El glifo se encoge con el texto si el usuario amplia la tipografia, en lugar
+ * de quedarse anclado a un tamano en pixeles.
+ */
+.glyph {
+  flex: none;
+}
+
+/* --- Tonos ---------------------------------------------------------------- */
+
+/*
+ * Neutro: etiquetas de contenido. No senala ningun estado, de modo que usa la
+ * superficie y el borde decorativo del sistema, sin glifo.
+ */
+.neutral {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.success {
+  background-color: var(--color-success-surface);
+  border-color: var(--color-success-border);
+  color: var(--color-success-text);
+}
+
+.warning {
+  background-color: var(--color-warning-surface);
+  border-color: var(--color-warning-border);
+  color: var(--color-warning-text);
+}
+
+.danger {
+  background-color: var(--color-danger-surface);
+  border-color: var(--color-danger-border);
+  color: var(--color-danger-text);
+}

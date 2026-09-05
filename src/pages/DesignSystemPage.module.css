@@ -1,0 +1,54 @@
+/*
+ * Estilos de la superficie de demostracion (solo desarrollo).
+ *
+ * Consume los mismos tokens que el resto del sistema: si esta pagina
+ * necesitara un valor propio, seria senal de que falta un token.
+ *
+ * Las rejillas usan `auto-fit` + `minmax` en lugar de media queries: el numero
+ * de columnas lo decide el espacio disponible, no un tamano de pantalla
+ * elegido a mano. Es la misma tecnica que `Task/014` puede usar para sus
+ * listados.
+ */
+
+.page {
+  padding-block: var(--space-2xl);
+}
+
+.lead {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
+}
+
+.secondary {
+  color: var(--color-text-secondary);
+}
+
+.swatchGrid,
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-lg);
+}
+
+/*
+ * Muestra de color. El borde evita que una muestra clara sobre fondo claro
+ * —el propio lienzo— parezca no tener limites.
+ */
+.swatch {
+  inline-size: var(--space-xl);
+  block-size: var(--space-lg);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  flex: none;
+}
+
+.stepLabel {
+  inline-size: var(--space-2xl);
+  flex: none;
+}
+
+.spacingBar {
+  block-size: var(--space-md);
+  background-color: var(--color-interactive);
+  border-radius: var(--radius-sm);
+}
