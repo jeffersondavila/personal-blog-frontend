@@ -1,0 +1,11 @@
+/* Valoracion: texto secundario con las estrellas en el color de acento. */
+
+.valoracion {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.estrellas {
+  color: var(--color-warning-text);
+  letter-spacing: 0.1em;
+}

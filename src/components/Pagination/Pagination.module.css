@@ -1,0 +1,44 @@
+/*
+ * Estilos de `Pagination`. Lista horizontal con envoltura: en pantalla estrecha
+ * los enlaces pasan a la linea siguiente sin ninguna media query.
+ */
+
+.lista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * Area de toque comoda, como el boton del sistema. El estado actual usa el
+ * mismo bloque para que la fila no baile.
+ */
+.enlace {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 2.75rem;
+  min-height: 2.75rem;
+  padding-inline: var(--space-sm);
+  border-radius: var(--radius-md);
+  text-decoration: none;
+}
+
+/*
+ * La pagina actual se distingue por relleno y peso, no solo por color (A-07),
+ * y ademas lleva `aria-current="page"`.
+ */
+.actual {
+  background-color: var(--color-interactive);
+  color: var(--color-text-on-interactive);
+  font-weight: var(--font-weight-medium);
+}
+
+.hueco {
+  color: var(--color-text-secondary);
+  padding-inline: var(--space-2xs);
+}

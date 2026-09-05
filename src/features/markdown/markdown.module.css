@@ -1,0 +1,70 @@
+/*
+ * Ritmo vertical y detalles del contenido Markdown renderizado.
+ *
+ * La fundacion pone a cero los margenes de bloque para que `Stack` gobierne la
+ * separacion; dentro de un texto corrido hace falta recuperar un ritmo, y se
+ * hace aqui con el selector de hermanos, con pasos de la escala del sistema.
+ *
+ * Todo lo que puede desbordar en horizontal —codigo, tablas, imagenes— queda
+ * acotado: es la parte del contenido que el autor no controla pagina a pagina.
+ */
+
+.contenido > * + * {
+  margin-block-start: var(--space-md);
+}
+
+.contenido > h2,
+.contenido > h3,
+.contenido > h4 {
+  margin-block-start: var(--space-xl);
+}
+
+.contenido ul,
+.contenido ol {
+  padding-inline-start: var(--space-lg);
+}
+
+.contenido li + li {
+  margin-block-start: var(--space-2xs);
+}
+
+.contenido blockquote {
+  padding-inline-start: var(--space-md);
+  border-inline-start: var(--radius-sm) solid var(--color-border-strong);
+  color: var(--color-text-secondary);
+}
+
+.contenido pre {
+  overflow-x: auto;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.contenido :not(pre) > code {
+  padding-inline: var(--space-2xs);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.contenido img {
+  border-radius: var(--radius-sm);
+}
+
+.contenido table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.contenido th,
+.contenido td {
+  padding: var(--space-xs) var(--space-sm);
+  border: var(--border-width) solid var(--color-border);
+  text-align: start;
+}
+
+.contenido hr {
+  border: 0;
+  border-block-start: var(--border-width) solid var(--color-border);
+}

@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!--
-      Sin este enlace el navegador pide `/favicon.ico` por su cuenta, recibe un
-      404 y lo registra como error de consola en todas las rutas. `data:` es un
-      recurso vacio: declara que todavia no hay icono, en lugar de inventar uno.
-      El icono real es una decision del sistema de diseno (`Task/013`).
+      Favicon neutro provisional (`Task/014`, decision D-014-E): una marca
+      geometrica simple con los colores de los tokens del sistema de diseno,
+      sin logotipo ni iniciales. Se reemplaza cuando exista identidad visual.
+      Vite copia `public/` tal cual al build, asi que la ruta es absoluta.
     -->
-    <link rel="icon" href="data:," />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Blog personal</title>
   </head>
   <body>

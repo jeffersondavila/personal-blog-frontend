@@ -1,0 +1,6 @@
+/* Estilos de `LoadingState`: texto secundario, sin animacion. */
+
+.estado {
+  color: var(--color-text-secondary);
+  padding-block: var(--space-lg);
+}
