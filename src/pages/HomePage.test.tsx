@@ -1,181 +1,148 @@
 /**
- * Comportamiento de la pantalla de fundacion frente al backend real.
+ * Inicio (USER_FLOWS A.1): presentacion breve, contenido destacado por tipo y
+ * accesos a las secciones. Cinco peticiones **independientes**: un bloque que
+ * falla no tumba la portada.
  *
- * La prueba sustituye `globalThis.fetch` porque es la dependencia que el
- * cliente HTTP resuelve por defecto cuando nadie le inyecta una: asi se
- * ejercita el mismo camino que recorre la aplicacion en el navegador, sin
- * tocar la red.
+ * Sustituye a la prueba de la pantalla provisional de fundacion (`Task/006`,
+ * `Task/007`), que esta portada reemplaza por diseno (ficha de `Task/014`,
+ * decision D-014-G).
  */
-import { render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
-import { HomePage } from './HomePage';
-import { AppConfigContext } from '../app/appConfigContext';
-import type { AppConfig } from '../lib/config/env';
+import { NOMBRE_DEL_SITIO } from '../lib/site';
+import { RUTAS } from '../lib/rutas';
+import { perfil, post, proyecto, review, video } from '../test/fixtures';
+import { renderRuta } from '../test/renderRuta';
+import { fallo, noEncontrado, pagina, respuestaJson, rutasPedidas } from '../test/respuestas';
 
-const CONFIG: AppConfig = { apiBaseUrl: 'http://proxy.de-prueba.test' };
-
-/** Monta la pantalla con la configuracion de prueba. */
-function renderHomePage() {
-  return render(
-    <AppConfigContext value={CONFIG}>
-      <HomePage />
-    </AppConfigContext>,
-  );
-}
-
-/** Instala un `fetch` global que devuelve la respuesta indicada. */
-function stubFetch(response: Response | Promise<never>) {
-  const fetchFn = vi
-    .fn<typeof fetch>()
-    .mockImplementation(() =>
-      response instanceof Response ? Promise.resolve(response) : response,
-    );
-  vi.stubGlobal('fetch', fetchFn);
-  return fetchFn;
-}
-
-function jsonResponse(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
+const API_COMPLETA = {
+  '/api/v1/profile': () => respuestaJson(perfil()),
+  '/api/v1/posts': () => respuestaJson(pagina([post()])),
+  '/api/v1/book-reviews': () => respuestaJson(pagina([review()])),
+  '/api/v1/videos': () => respuestaJson(pagina([video()])),
+  '/api/v1/projects': () => respuestaJson(pagina([proyecto()])),
+};
 
 describe('HomePage', () => {
-  it('muestra el origen del API que recibio de la configuracion', async () => {
-    stubFetch(jsonResponse({ status: 'ok', service: 'backend', version: '0.1.0' }));
+  it('pide el perfil y los destacados de los cuatro tipos con featured=true y page_size=3', async () => {
+    const { fetchFn } = renderRuta(RUTAS.inicio, API_COMPLETA);
 
-    renderHomePage();
-
-    expect(await screen.findByText(CONFIG.apiBaseUrl)).toBeInTheDocument();
-  });
-
-  it('consulta /health del backend sobre el origen configurado', async () => {
-    const fetchFn = stubFetch(jsonResponse({ status: 'ok', service: 'backend', version: '0.1.0' }));
-
-    renderHomePage();
-
-    await screen.findByText('Backend disponible');
-    expect(fetchFn.mock.calls[0]?.[0]).toBe(`${CONFIG.apiBaseUrl}/health`);
-  });
-
-  it('muestra el servicio y la version que devolvio el backend', async () => {
-    stubFetch(jsonResponse({ status: 'ok', service: 'personal-blog-backend', version: '0.1.0' }));
-
-    renderHomePage();
-
-    expect(await screen.findByText('personal-blog-backend')).toBeInTheDocument();
-    expect(screen.getByText('0.1.0')).toBeInTheDocument();
-  });
-
-  it('informa de que el backend no responde cuando la peticion falla', async () => {
-    stubFetch(Promise.reject(new TypeError('failed to fetch')));
-
-    renderHomePage();
-
-    expect(await screen.findByText('Backend sin respuesta')).toBeInTheDocument();
-  });
-
-  it('informa de que el backend no responde ante un estado no exitoso', async () => {
-    stubFetch(jsonResponse({ detail: 'caido' }, 503));
-
-    renderHomePage();
-
-    expect(await screen.findByText('Backend sin respuesta')).toBeInTheDocument();
-  });
-
-  it('entrega a fetch el signal del controlador que cancela al desmontar', async () => {
-    const fetchFn = stubFetch(jsonResponse({ status: 'ok', service: 'backend', version: '0.1.0' }));
-
-    const { unmount } = renderHomePage();
-    await screen.findByText('Backend disponible');
-
-    const signal = fetchFn.mock.calls[0]?.[1]?.signal;
-    expect(signal).toBeInstanceOf(AbortSignal);
-    expect(signal?.aborted).toBe(false);
-
-    unmount();
-
-    // El mismo signal que recibio `fetch` queda abortado: la cancelacion llega
-    // a la peticion, no se limita a descartar su resultado.
-    expect(signal?.aborted).toBe(true);
-  });
-
-  it('aborta la peticion en vuelo al desmontar, sin actualizar el estado', async () => {
-    // El doble de `fetch` se comporta como el real: solo rechaza cuando se
-    // dispara el abort del signal que recibio.
-    let abortada = false;
-    const fetchFn = vi.fn<typeof fetch>().mockImplementation(
-      (_input, init) =>
-        new Promise((_resolve, reject) => {
-          init?.signal?.addEventListener('abort', () => {
-            abortada = true;
-            reject(new DOMException('The operation was aborted.', 'AbortError'));
-          });
-        }),
-    );
-    vi.stubGlobal('fetch', fetchFn);
-
-    const { unmount } = renderHomePage();
-    expect(await screen.findByText('Consultando el backend...')).toBeInTheDocument();
-
-    unmount();
-
-    expect(abortada).toBe(true);
-    // Un AbortError no debe interpretarse como backend caido.
-    expect(screen.queryByText('Backend sin respuesta')).not.toBeInTheDocument();
-    expect(screen.queryByText('Backend disponible')).not.toBeInTheDocument();
-  });
-
-  it('no actualiza el estado si la respuesta llega justo despues del desmontaje', async () => {
-    // Carrera que el abort no puede evitar: la promesa ya estaba resuelta
-    // cuando se cancelo. La guarda de `aborted` es lo que lo cubre.
-    let resolver!: (respuesta: Response) => void;
-    const pendiente = new Promise<Response>((resolve) => {
-      resolver = resolve;
+    await screen.findByRole('heading', { level: 1 });
+    await waitFor(() => {
+      expect(fetchFn).toHaveBeenCalledTimes(5);
     });
-    vi.stubGlobal(
-      'fetch',
-      vi.fn<typeof fetch>().mockImplementation(() => pendiente),
-    );
 
-    const { unmount } = renderHomePage();
-    unmount();
-    resolver(jsonResponse({ status: 'ok', service: 'backend', version: '0.1.0' }));
-
-    await expect(pendiente).resolves.toBeInstanceOf(Response);
-    expect(screen.queryByText('Backend disponible')).not.toBeInTheDocument();
+    const rutas = rutasPedidas(fetchFn).sort();
+    expect(rutas).toEqual([
+      '/api/v1/book-reviews?featured=true&page_size=3',
+      '/api/v1/posts?featured=true&page_size=3',
+      '/api/v1/profile',
+      '/api/v1/projects?featured=true&page_size=3',
+      '/api/v1/videos?featured=true&page_size=3',
+    ]);
   });
 
-  it('no actualiza el estado si el fallo llega justo despues del desmontaje', async () => {
-    let rechazar!: (motivo: unknown) => void;
-    const pendiente = new Promise<Response>((_resolve, reject) => {
-      rechazar = reject;
+  it('muestra la presentacion del perfil y una seccion por tipo con sus destacados', async () => {
+    renderRuta(RUTAS.inicio, API_COMPLETA);
+
+    const presentacion = await screen.findByRole('heading', { level: 1, name: /autora del blog/i });
+    expect(presentacion).toBeInTheDocument();
+    expect(screen.getByText('Ingeniera de software')).toBeInTheDocument();
+    // La cabecera y el pie tambien enlazan a Quién soy: se busca dentro de `main`.
+    expect(
+      within(screen.getByRole('main')).getByRole('link', { name: /qui[eé]n soy/i }),
+    ).toHaveAttribute('href', RUTAS.quienSoy);
+
+    for (const [nombre, titulo] of [
+      [/art[ií]culos destacados/i, 'Hola mundo'],
+      [/reviews destacadas/i, 'Review de Clean Code'],
+      [/videos destacados/i, 'Introduccion a Docker'],
+      [/proyectos destacados/i, 'Blog personal'],
+    ] as const) {
+      const seccion = await screen.findByRole('region', { name: nombre });
+      expect(within(seccion).getByRole('heading', { level: 2 })).toBeInTheDocument();
+      expect(within(seccion).getByRole('heading', { level: 3, name: titulo })).toBeInTheDocument();
+    }
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(document.title).toBe(NOMBRE_DEL_SITIO);
+  });
+
+  it('cada seccion enlaza a su listado completo', async () => {
+    renderRuta(RUTAS.inicio, API_COMPLETA);
+
+    const seccion = await screen.findByRole('region', { name: /art[ií]culos destacados/i });
+    expect(
+      within(seccion).getByRole('link', { name: /ver todos los art[ií]culos/i }),
+    ).toHaveAttribute('href', RUTAS.articulos);
+  });
+
+  it('con el perfil aun sin semilla omite la presentacion y conserva un h1 y las secciones', async () => {
+    renderRuta(RUTAS.inicio, { ...API_COMPLETA, '/api/v1/profile': () => noEncontrado() });
+
+    const seccion = await screen.findByRole('region', { name: /art[ií]culos destacados/i });
+    expect(
+      within(seccion).getByRole('heading', { level: 3, name: 'Hola mundo' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(NOMBRE_DEL_SITIO);
+    expect(screen.queryByRole('heading', { name: /404/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('una seccion sin destacados lo dice y enlaza a su listado, sin lista vacia', async () => {
+    renderRuta(RUTAS.inicio, {
+      ...API_COMPLETA,
+      '/api/v1/videos': () => respuestaJson(pagina([])),
     });
-    vi.stubGlobal(
-      'fetch',
-      vi.fn<typeof fetch>().mockImplementation(() => pendiente),
+
+    const seccion = await screen.findByRole('region', { name: /videos destacados/i });
+    expect(
+      await within(seccion).findByText(/todav[ií]a no hay videos destacados/i),
+    ).toBeInTheDocument();
+    expect(within(seccion).getByRole('link', { name: /ver todos los videos/i })).toHaveAttribute(
+      'href',
+      RUTAS.videos,
     );
-
-    const { unmount } = renderHomePage();
-    unmount();
-    rechazar(new TypeError('failed to fetch'));
-
-    await expect(pendiente).rejects.toBeInstanceOf(TypeError);
-    expect(screen.queryByText('Backend sin respuesta')).not.toBeInTheDocument();
   });
 
-  it('no muestra detalles del fallo en la interfaz', async () => {
-    stubFetch(jsonResponse({ detail: 'traza interna que no debe verse' }, 500));
+  it('el fallo de un bloque muestra su error con reintento sin tumbar los demas', async () => {
+    let intentos = 0;
+    renderRuta(RUTAS.inicio, {
+      ...API_COMPLETA,
+      '/api/v1/projects': () => {
+        intentos += 1;
+        return intentos === 1 ? fallo() : respuestaJson(pagina([proyecto()]));
+      },
+    });
 
-    renderHomePage();
+    const proyectos = await screen.findByRole('region', { name: /proyectos destacados/i });
+    const alerta = await within(proyectos).findByRole('alert');
+    // Los demas bloques siguen en pie.
+    expect(
+      await screen.findByRole('heading', { level: 3, name: 'Hola mundo' }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
 
-    await screen.findByText('Backend sin respuesta');
-    expect(screen.queryByText(/traza interna/i)).not.toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(within(alerta).getByRole('button', { name: /reintentar/i }));
+      await Promise.resolve();
+    });
+
+    expect(
+      await within(proyectos).findByRole('heading', { level: 3, name: 'Blog personal' }),
+    ).toBeInTheDocument();
+    expect(intentos).toBe(2);
+  });
+
+  it('no consulta /health ni ningun recurso administrativo', async () => {
+    const { fetchFn } = renderRuta(RUTAS.inicio, API_COMPLETA);
+
+    await waitFor(() => {
+      expect(fetchFn).toHaveBeenCalledTimes(5);
+    });
+    expect(rutasPedidas(fetchFn).some((r) => r.includes('/health') || r.includes('/admin'))).toBe(
+      false,
+    );
   });
 });

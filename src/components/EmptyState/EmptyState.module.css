@@ -1,0 +1,9 @@
+/* Estilos de `EmptyState`: una superficie del sistema con el mensaje. */
+
+.vacio {
+  text-align: start;
+}
+
+.mensaje {
+  color: var(--color-text-secondary);
+}

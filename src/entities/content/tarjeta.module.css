@@ -1,0 +1,79 @@
+/*
+ * Estilos compartidos por las cuatro tarjetas de contenido (articulo, review,
+ * video y proyecto). Un solo archivo para que las cuatro se vean iguales sin
+ * que exista un componente «tarjeta generica» que tuviera que conocer los
+ * cuatro tipos.
+ *
+ * Responsive intrinseco: la tarjeta ocupa lo que le da su rejilla; la imagen
+ * respeta una proporcion fija y recorta con `object-fit` en lugar de deformar.
+ */
+
+.item {
+  list-style: none;
+  display: flex;
+}
+
+.tarjeta {
+  inline-size: 100%;
+  display: flex;
+}
+
+.articulo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  inline-size: 100%;
+}
+
+.imagen {
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.titulo {
+  font-size: var(--font-size-lg);
+}
+
+.titulo a {
+  text-decoration: none;
+  color: var(--color-text-primary);
+}
+
+.titulo a:hover {
+  text-decoration: underline;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2xs) var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.resumen {
+  color: var(--color-text-secondary);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  align-items: center;
+}
+
+.embed {
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+/* Empuja las acciones al final para alinear las tarjetas de una misma fila. */
+.pie {
+  margin-block-start: auto;
+}

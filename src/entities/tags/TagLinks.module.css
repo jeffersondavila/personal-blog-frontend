@@ -1,0 +1,16 @@
+/* Lista horizontal de etiquetas con envoltura; sin media queries. */
+
+.lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* El badge ya es la pieza visible; el enlace no anade subrayado propio. */
+.enlace {
+  text-decoration: none;
+  display: inline-flex;
+}

@@ -1,0 +1,21 @@
+/* Filtro de etiquetas: fila con envoltura, sin media queries. */
+
+.lista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.enlace {
+  text-decoration: none;
+  display: inline-flex;
+}
+
+.quitar {
+  font-size: var(--font-size-sm);
+  padding-inline: var(--space-xs);
+}

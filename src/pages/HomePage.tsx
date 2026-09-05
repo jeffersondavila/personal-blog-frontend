@@ -1,131 +1,232 @@
 /**
- * Pantalla de fundacion.
+ * Inicio (USER_FLOWS A.1): presentacion breve del autor, contenido destacado
+ * de cada tipo y accesos a las secciones.
  *
- * **Estado temporal del proyecto.** No es la portada del blog: la portada, el
- * sistema de diseno y el contenido real son `Task/013` y `Task/014`. Esta
- * pantalla existe unicamente para comprobar, sin abrir la consola, que React
- * monta, que el router resuelve la ruta inicial, que la configuracion de
- * entorno llego hasta la interfaz y —desde `Task/007`— que el frontend alcanza
- * de verdad al backend a traves del reverse proxy local.
+ * Cinco peticiones **independientes** —perfil y destacados de artículos,
+ * reviews, videos y proyectos—, cada una con su propio estado de carga, vacío,
+ * error y reintento. Un bloque que falla no tumba la portada: *«si falla la
+ * carga, se muestra un estado de error con reintento; el sitio no queda en
+ * blanco»*.
  *
- * Mostrar aqui el origen del API no filtra nada: Vite incrusta toda variable
- * `VITE_*` en el bundle, de modo que ese valor ya es publico por construccion.
- * Por eso mismo ninguna variable `VITE_*` puede contener un secreto
- * (`CONTRIBUTING.md`, seccion 7).
+ * El `404` del perfil (sin semilla hasta `Task/022`, decision D-009-N) omite
+ * la presentacion y deja el nombre del sitio como `h1`: no es un error del
+ * visitante y no se muestra como tal (decision D-014-K).
+ *
+ * La biografia **no** se renderiza aqui: Inicio muestra una presentacion breve
+ * y enlaza a Quién soy, de modo que la portada no descarga el renderizador
+ * Markdown.
+ *
+ * Sustituye a la pantalla provisional de fundacion de `Task/006`/`Task/007`
+ * (decision D-014-G).
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, type ReactNode } from 'react';
+import { Link } from 'react-router';
 
-import { useAppConfig } from '../app/appConfigContext';
-import { createHttpClient } from '../services/http';
-import { fetchBackendHealth, type BackendHealth } from '../services/health';
+import styles from './HomePage.module.css';
+import listado from './listado.module.css';
+import { useHttpClient } from '../app/httpClientContext';
+import { Container, EmptyState, ErrorState, LoadingState, Stack } from '../components';
+import { ReviewCard } from '../entities/book-reviews/ReviewCard';
+import { MediaImage } from '../entities/media/MediaImage';
+import { PostCard } from '../entities/posts/PostCard';
+import { ProjectCard } from '../entities/projects/ProjectCard';
+import { VideoCard } from '../entities/videos/VideoCard';
+import { useAsyncResource, type Cargador } from '../hooks/useAsyncResource';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { RUTAS } from '../lib/rutas';
+import { NOMBRE_DEL_SITIO } from '../lib/site';
+import {
+  fetchBookReviews,
+  fetchPosts,
+  fetchProfile,
+  fetchProjects,
+  fetchVideos,
+  type Pagina,
+  type ParametrosDeListado,
+} from '../services/public';
 
-/** Estado de la consulta al backend. */
-type EstadoDeSalud =
-  | { readonly fase: 'consultando' }
-  | { readonly fase: 'disponible'; readonly salud: BackendHealth }
-  | { readonly fase: 'sin-respuesta' };
+/** Destacados por tipo en Inicio (decision D-014-I). */
+const DESTACADOS: ParametrosDeListado = { featured: true, pageSize: 3 };
 
 export function HomePage() {
-  const { apiBaseUrl } = useAppConfig();
+  useDocumentTitle(null);
+  const cliente = useHttpClient();
 
-  // El cliente se memoriza para no reconstruirlo en cada render. No se eleva a
-  // un proveedor: hasta que haya mas de un consumidor, un contexto adicional
-  // seria una capa sin uso.
-  const httpClient = useMemo(() => createHttpClient({ baseUrl: apiBaseUrl }), [apiBaseUrl]);
-
-  const [estado, setEstado] = useState<EstadoDeSalud>({ fase: 'consultando' });
-
-  useEffect(() => {
-    // El `signal` se propaga hasta `fetch`: al desmontar, la peticion en vuelo
-    // se **aborta de verdad**, no se queda corriendo con su resultado
-    // descartado. La comprobacion de `aborted` que sigue cubre la carrera que
-    // el abort no puede evitar: que la promesa ya se hubiera resuelto justo
-    // antes de cancelar.
-    const controlador = new AbortController();
-
-    void (async () => {
-      try {
-        const salud = await fetchBackendHealth(httpClient, controlador.signal);
-        if (!controlador.signal.aborted) {
-          setEstado({ fase: 'disponible', salud });
-        }
-      } catch {
-        // Una cancelacion no es un fallo del backend: si se aborto, no hay nada
-        // que informar. El detalle del resto de fallos tampoco se muestra: un
-        // error del API puede arrastrar informacion interna y esta pantalla es
-        // publica. El diagnostico real se hace con los logs y con Portainer
-        // (runbook del entorno local).
-        if (!controlador.signal.aborted) {
-          setEstado({ fase: 'sin-respuesta' });
-        }
-      }
-    })();
-
-    return () => {
-      controlador.abort();
-    };
-  }, [httpClient]);
+  const cargarPerfil = useCallback(
+    (signal: AbortSignal) => fetchProfile(cliente, signal),
+    [cliente],
+  );
+  const cargarPosts = useCallback(
+    (signal: AbortSignal) => fetchPosts(cliente, DESTACADOS, signal),
+    [cliente],
+  );
+  const cargarReviews = useCallback(
+    (signal: AbortSignal) => fetchBookReviews(cliente, DESTACADOS, signal),
+    [cliente],
+  );
+  const cargarVideos = useCallback(
+    (signal: AbortSignal) => fetchVideos(cliente, DESTACADOS, signal),
+    [cliente],
+  );
+  const cargarProyectos = useCallback(
+    (signal: AbortSignal) => fetchProjects(cliente, DESTACADOS, signal),
+    [cliente],
+  );
 
   return (
-    <main>
-      <h1>Blog personal — fundacion del frontend</h1>
+    <Container width="wide">
+      <Stack gap="2xl">
+        <Presentacion cargar={cargarPerfil} />
 
-      <p>
-        Este repositorio esta en <strong>ETAPA 02</strong>. Lo que ves es una pantalla provisional:
-        confirma que la aplicacion React monta, que el enrutado responde, que la configuracion de
-        entorno se cargo correctamente y que el backend es alcanzable.
-      </p>
+        <SeccionDestacados
+          id="destacados-articulos"
+          titulo="Artículos destacados"
+          ruta={RUTAS.articulos}
+          textoEnlace="Ver todos los artículos"
+          mensajeVacio="Todavía no hay artículos destacados."
+          mensajeError="No se pudieron cargar los artículos destacados."
+          cargar={cargarPosts}
+          render={(items) =>
+            items.map((post) => <PostCard key={post.slug} post={post} nivelDeTitulo={3} />)
+          }
+        />
 
-      <h2>Configuracion activa</h2>
-      <dl>
-        <dt>Origen del API</dt>
-        <dd>
-          <code>{apiBaseUrl}</code>
-        </dd>
-      </dl>
+        <SeccionDestacados
+          id="destacados-reviews"
+          titulo="Reviews destacadas"
+          ruta={RUTAS.reviews}
+          textoEnlace="Ver todas las reviews"
+          mensajeVacio="Todavía no hay reviews destacadas."
+          mensajeError="No se pudieron cargar las reviews destacadas."
+          cargar={cargarReviews}
+          render={(items) =>
+            items.map((review) => (
+              <ReviewCard key={review.slug} review={review} nivelDeTitulo={3} />
+            ))
+          }
+        />
 
-      <h2>Estado del backend</h2>
-      <p>
-        Consulta real a <code>GET /health</code> mediante el cliente HTTP comun.
-      </p>
-      <dl>
-        <dt>Conexion</dt>
-        <dd data-testid="estado-backend">{describirEstado(estado)}</dd>
+        <SeccionDestacados
+          id="destacados-videos"
+          titulo="Videos destacados"
+          ruta={RUTAS.videos}
+          textoEnlace="Ver todos los videos"
+          mensajeVacio="Todavía no hay videos destacados."
+          mensajeError="No se pudieron cargar los videos destacados."
+          cargar={cargarVideos}
+          render={(items) =>
+            items.map((video) => <VideoCard key={video.slug} video={video} nivelDeTitulo={3} />)
+          }
+        />
 
-        {estado.fase === 'disponible' && (
-          <>
-            <dt>Servicio</dt>
-            <dd>
-              <code>{estado.salud.service}</code>
-            </dd>
-
-            <dt>Version</dt>
-            <dd>
-              <code>{estado.salud.version}</code>
-            </dd>
-          </>
-        )}
-      </dl>
-
-      <h2>Que todavia no existe</h2>
-      <ul>
-        <li>Sistema de diseno y portada definitiva.</li>
-        <li>Articulos, reviews, videos y proyectos.</li>
-        <li>Panel administrativo y autenticacion.</li>
-        <li>Almacenamiento de objetos a traves de la interfaz del backend.</li>
-      </ul>
-    </main>
+        <SeccionDestacados
+          id="destacados-proyectos"
+          titulo="Proyectos destacados"
+          ruta={RUTAS.proyectos}
+          textoEnlace="Ver todos los proyectos"
+          mensajeVacio="Todavía no hay proyectos destacados."
+          mensajeError="No se pudieron cargar los proyectos destacados."
+          cargar={cargarProyectos}
+          render={(items) =>
+            items.map((proyecto) => (
+              <ProjectCard key={proyecto.slug} proyecto={proyecto} nivelDeTitulo={3} />
+            ))
+          }
+        />
+      </Stack>
+    </Container>
   );
 }
 
-/** Texto que describe el estado de la consulta, sin detalles del fallo. */
-function describirEstado(estado: EstadoDeSalud): string {
-  switch (estado.fase) {
-    case 'consultando':
-      return 'Consultando el backend...';
-    case 'disponible':
-      return 'Backend disponible';
-    case 'sin-respuesta':
-      return 'Backend sin respuesta';
+/** Presentacion breve del autor. Especifica de esta pagina. */
+function Presentacion({
+  cargar,
+}: {
+  readonly cargar: Cargador<Awaited<ReturnType<typeof fetchProfile>>>;
+}) {
+  const { estado, reintentar } = useAsyncResource(cargar);
+
+  if (estado.fase === 'exito') {
+    return (
+      <header className={styles['presentacion']}>
+        <MediaImage medio={estado.datos.photo} className={styles['foto']} prioridad="alta" />
+        <Stack gap="sm">
+          <h1>{estado.datos.full_name}</h1>
+          {estado.datos.headline !== null && (
+            <p className={styles['titular']}>{estado.datos.headline}</p>
+          )}
+          <p>
+            <Link to={RUTAS.quienSoy}>Quién soy</Link>
+          </p>
+        </Stack>
+      </header>
+    );
   }
+
+  return (
+    <header className={styles['presentacion']}>
+      <Stack gap="sm">
+        <h1>{NOMBRE_DEL_SITIO}</h1>
+        {estado.fase === 'cargando' && <LoadingState>Cargando la presentación…</LoadingState>}
+        {estado.fase === 'error' && (
+          <ErrorState mensaje="No se pudo cargar la presentación." onRetry={reintentar} />
+        )}
+        {/* Sin perfil todavia (D-014-K): la portada sigue en pie sin presentacion. */}
+      </Stack>
+    </header>
+  );
+}
+
+interface SeccionDestacadosProps<T> {
+  readonly id: string;
+  readonly titulo: string;
+  readonly ruta: string;
+  readonly textoEnlace: string;
+  readonly mensajeVacio: string;
+  readonly mensajeError: string;
+  readonly cargar: Cargador<Pagina<T>>;
+  readonly render: (items: readonly T[]) => ReactNode;
+}
+
+/** Bloque de destacados de un tipo, con su propio ciclo de vida. Especifico de esta pagina. */
+function SeccionDestacados<T>({
+  id,
+  titulo,
+  ruta,
+  textoEnlace,
+  mensajeVacio,
+  mensajeError,
+  cargar,
+  render,
+}: SeccionDestacadosProps<T>) {
+  const { estado, reintentar } = useAsyncResource(cargar);
+
+  return (
+    <section aria-labelledby={id}>
+      <Stack gap="lg">
+        <div className={styles['cabeceraDeSeccion']}>
+          <h2 id={id}>{titulo}</h2>
+          <Link to={ruta}>{textoEnlace}</Link>
+        </div>
+
+        {estado.fase === 'cargando' && (
+          <LoadingState>Cargando {titulo.toLowerCase()}…</LoadingState>
+        )}
+
+        {(estado.fase === 'error' || estado.fase === 'no-encontrado') && (
+          <ErrorState mensaje={mensajeError} onRetry={reintentar} />
+        )}
+
+        {estado.fase === 'exito' && estado.datos.items.length === 0 && (
+          <EmptyState mensaje={mensajeVacio} />
+        )}
+
+        {estado.fase === 'exito' && estado.datos.items.length > 0 && (
+          <ul className={listado['rejilla']} aria-label={titulo}>
+            {render(estado.datos.items)}
+          </ul>
+        )}
+      </Stack>
+    </section>
+  );
 }

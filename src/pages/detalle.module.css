@@ -1,0 +1,48 @@
+/*
+ * Estilos compartidos por las paginas de detalle (articulo, review, proyecto)
+ * y por Quién soy. Columna de lectura (`Container prose`); la portada ocupa el
+ * ancho de la columna y nunca mas.
+ */
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2xs) var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.portada {
+  inline-size: 100%;
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.retrato {
+  /* `min()`: nunca mas ancho que la columna en un movil estrecho. */
+  inline-size: min(12rem, 100%);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.titular {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-lg);
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  align-items: center;
+}
+
+.lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
