@@ -1,0 +1,31 @@
+/*
+ * Estilos compartidos por las paginas de listado y de busqueda.
+ *
+ * La rejilla decide su numero de columnas por el espacio disponible
+ * (`auto-fit` + `minmax`), no por un tamano de pantalla elegido a mano: sin
+ * media queries. `min(18rem, 100%)` evita que una columna minima sea mas ancha
+ * que un movil estrecho, que es lo que produciria desplazamiento horizontal.
+ */
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr));
+  gap: var(--space-lg);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aviso {
+  color: var(--color-text-secondary);
+}
+
+/* Resultados de busqueda: una columna de lectura, no una rejilla. */
+.resultados {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

@@ -59,6 +59,36 @@ function readComponentStyles(): readonly CssFile[] {
 
 const COMPONENT_STYLES = readComponentStyles();
 
+/**
+ * Todos los CSS Modules del arbol `src/`, no solo los de las primitivas.
+ *
+ * `Task/014` anade hojas en `app/`, `pages/`, `entities/` y `features/`. Sin
+ * esta extension, una pagina podria pegar un color literal o suprimir el
+ * foco sin que la suite lo detectara: las guardas protegerian solo lo que ya
+ * estaba protegido. Se descubren recorriendo el directorio, igual que las de
+ * los componentes.
+ */
+function readAllModuleStyles(directorio = join(cwd(), 'src'), prefijo = ''): readonly CssFile[] {
+  return readdirSync(directorio, { withFileTypes: true }).flatMap((entry) => {
+    const ruta = join(directorio, entry.name);
+    const nombre = prefijo === '' ? entry.name : `${prefijo}/${entry.name}`;
+    if (entry.isDirectory()) {
+      return readAllModuleStyles(ruta, nombre);
+    }
+    if (entry.name.endsWith('.module.css')) {
+      return [{ name: nombre, source: readFileSync(ruta, 'utf8') }];
+    }
+    return [];
+  });
+}
+
+const ALL_MODULE_STYLES = readAllModuleStyles();
+
+/** Los CSS Modules que NO son primitivas del sistema: layout, paginas, entidades, features. */
+const NON_COMPONENT_STYLES = ALL_MODULE_STYLES.filter(
+  (file) => !file.name.startsWith('components/'),
+);
+
 /** Elimina los comentarios para no analizar prosa explicativa como si fuera CSS. */
 function withoutComments(source: string): string {
   return source.replace(/\/\*[\s\S]*?\*\//g, '');
@@ -167,6 +197,80 @@ describe('guardas del sistema de diseno', () => {
   describe('accesibilidad del movimiento', () => {
     it('la fundacion respeta prefers-reduced-motion', () => {
       expect(FOUNDATION_CSS).toMatch(/@media\s*\(prefers-reduced-motion:\s*reduce\)/);
+    });
+  });
+
+  /*
+   * Extension de `Task/014` (decision D-014-M): las mismas reglas sobre TODO
+   * CSS Module del arbol. Las pruebas anteriores no se tocan; estas las
+   * amplian.
+   */
+  describe('extension a todo el arbol — layout, paginas, entidades y features', () => {
+    it('encuentra CSS Modules fuera de src/components', () => {
+      // Si esta prueba falla, las siguientes estarian pasando en vacio.
+      expect(NON_COMPONENT_STYLES.length).toBeGreaterThanOrEqual(5);
+      expect(ALL_MODULE_STYLES.length).toBe(COMPONENT_STYLES.length + NON_COMPONENT_STYLES.length);
+    });
+
+    describe('T-01 — ninguna hoja define un color propio', () => {
+      it.each(NON_COMPONENT_STYLES)('$name no contiene ningun color literal', ({ source }) => {
+        const declarations = withoutComments(source);
+
+        expect(declarations).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+        expect(declarations).not.toMatch(/\b(?:rgba?|hsla?|oklch|lab|color-mix)\s*\(/i);
+        expect(declarations).not.toMatch(
+          /:\s*(?:white|black|red|green|blue|gray|grey|silver|orange)\s*[;!]/i,
+        );
+      });
+    });
+
+    describe('T-03 / T-04 — todo token referenciado existe', () => {
+      it.each(NON_COMPONENT_STYLES)('$name solo usa tokens declarados', ({ source }) => {
+        const referenced = [...source.matchAll(/var\(\s*(--[a-z0-9-]+)/gi)].map(
+          (match) => match[1],
+        );
+
+        expect(referenced.length).toBeGreaterThan(0);
+
+        for (const token of referenced) {
+          const declaredLocally = new RegExp(`${String(token)}:`).test(source);
+          const declaredInTokens = new RegExp(`${String(token)}:`).test(TOKENS_CSS);
+
+          expect(
+            declaredInTokens || declaredLocally,
+            `${String(token)} no esta declarado en tokens.css`,
+          ).toBe(true);
+        }
+      });
+    });
+
+    describe('F-03 — el foco nunca se elimina ni se redefine fuera de la fundacion', () => {
+      it.each(NON_COMPONENT_STYLES)('$name no suprime el outline', ({ source }) => {
+        expect(withoutComments(source)).not.toMatch(/outline\s*:\s*(?:none|0)\b/i);
+      });
+
+      it.each(NON_COMPONENT_STYLES)('$name no declara su propio :focus-visible', ({ source }) => {
+        expect(withoutComments(source)).not.toMatch(/:focus-visible/);
+      });
+    });
+
+    describe('R-03 — sin breakpoints por dispositivo', () => {
+      it.each(NON_COMPONENT_STYLES)(
+        '$name solo usa una media query de ancho si cita el breakpoint canonico',
+        ({ source }) => {
+          const declarations = withoutComments(source);
+          const usaMediaQueryDeAncho = /@media[^{]*\b(?:min|max)-width\b/i.test(declarations);
+
+          if (usaMediaQueryDeAncho) {
+            // La plataforma no permite `var()` dentro de `@media`: el literal
+            // debe repetirse y el token citarse como origen (tokens.css).
+            expect(
+              source,
+              'una media query de ancho debe citar --breakpoint-md o --breakpoint-lg',
+            ).toMatch(/--breakpoint-(?:md|lg)/);
+          }
+        },
+      );
     });
   });
 });

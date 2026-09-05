@@ -1,0 +1,17 @@
+/*
+ * Estilos de `ErrorState`. Usa la terna de tono `danger` de `tokens.css`, cuyo
+ * texto sobre superficie y borde sobre lienzo estan verificados en
+ * `contrast.test.ts`. El significado no depende del color: lo llevan el texto
+ * y el `role="alert"`.
+ */
+
+.error {
+  padding: var(--space-lg);
+  border: var(--border-width) solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-danger-surface);
+}
+
+.mensaje {
+  color: var(--color-danger-text);
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Favicon neutro PROVISIONAL del sitio publico (Task/014, decision D-014-E).
+
+  No es un logotipo ni una marca: ninguna fuente canonica del proyecto define
+  identidad visual, asi que aqui solo hay una marca geometrica simple, sin
+  iniciales, sin nombre ni tipografia. Debe reemplazarse cuando exista una
+  identidad visual real.
+
+  Colores: un SVG servido como recurso externo NO hereda las CSS Custom
+  Properties de la aplicacion, por lo que los valores van escritos. Son
+  literalmente los de `src/styles/tokens.css` en el momento de crear el asset
+  —no una segunda paleta—; si esos tokens cambian, este archivo se actualiza:
+
+    fondo   #12467f  = --color-interactive
+    marca   #ffffff  = --color-text-on-interactive
+
+  Forma: cuadrado de esquinas redondeadas (proporcion de --radius-md sobre el
+  boton del sistema) con un anillo centrado.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Icono del sitio">
+  <rect x="0" y="0" width="32" height="32" rx="8" fill="#12467f"/>
+  <circle cx="16" cy="16" r="7" fill="none" stroke="#ffffff" stroke-width="3"/>
+</svg>
