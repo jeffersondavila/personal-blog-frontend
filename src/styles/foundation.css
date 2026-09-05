@@ -1,0 +1,194 @@
+/*
+ * Fundacion global del sistema de diseno (`Task/013`).
+ *
+ * Defaults de documento, tipografia y —lo mas importante— la estrategia UNICA
+ * de foco visible. Todo valor viene de `tokens.css`; aqui no se define ningun
+ * color ni ninguna medida propia.
+ *
+ * Criterio de lo que entra: solo lo que el documento necesita para ser legible
+ * y accesible sin que ninguna pagina lo repita. No se normaliza agresivamente
+ * —y en particular no se tocan los formularios, que todavia no existen y son
+ * de `Task/015`—: un reset que borra estilos del navegador borra tambien las
+ * garantias de accesibilidad que traen.
+ */
+
+/* --- Caja y comportamiento del documento --------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /*
+   * El desplazamiento suave es preferencia, no funcion. Se concede solo a
+   * quien no ha pedido reducir el movimiento.
+   */
+  scroll-behavior: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-md);
+  line-height: var(--line-height-normal);
+  /*
+   * Con una paleta de un solo tema, declarar `light dark` seria prometer un
+   * modo oscuro que no existe: el navegador pintaria su lienzo oscuro bajo
+   * colores disenados para fondo claro y romperia el contraste (**A-05**).
+   * Ver ficha `TASK-013`, decision D-13.3.
+   */
+  color-scheme: light;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* --- Tipografia ---------------------------------------------------------- */
+
+/*
+ * Los margenes verticales se declaran solo hacia abajo. Asi no hay colapso de
+ * margenes que razonar, y `Stack` puede gobernar la separacion sin pelear
+ * contra un margen superior heredado.
+ */
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+dl,
+figure,
+blockquote,
+pre {
+  margin-block: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  line-height: var(--line-height-tight);
+  /*
+   * `balance` reparte las lineas de un titulo corto de forma pareja; los
+   * navegadores que no lo soportan lo ignoran sin consecuencia.
+   */
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+}
+
+h2 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+h3 {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+}
+
+h4 {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+}
+
+small {
+  font-size: var(--font-size-sm);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+}
+
+/* --- Enlaces -------------------------------------------------------------- */
+
+/*
+ * El enlace se estila globalmente en lugar de envolverse en un componente:
+ * asi `react-router` y un `<a href>` normal se ven igual sin que nadie tenga
+ * que acordarse de importar nada, y la diferencia semantica entre navegar
+ * (enlace) y actuar (boton) queda intacta.
+ *
+ * El subrayado se conserva: es la senal no cromatica que distingue un enlace
+ * dentro de un parrafo (**A-07**).
+ */
+a {
+  color: var(--color-interactive);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--color-interactive-hover);
+}
+
+/* --- Foco visible --------------------------------------------------------- */
+
+/*
+ * ESTRATEGIA UNICA DE FOCO DEL SISTEMA (**A-06**).
+ *
+ * Se declara una sola vez, sobre el selector universal, en lugar de repetirse
+ * en cada componente. Consecuencias buscadas:
+ *
+ * 1. Todo elemento enfocable —los de hoy y los que anadan `Task/014` y
+ *    `Task/015`— hereda el mismo anillo sin hacer nada.
+ * 2. Ningun componente puede "olvidarse" del foco.
+ * 3. `:focus-visible` y no `:focus`: el anillo aparece con teclado y no
+ *    molesta al hacer click con el raton, que es la razon por la que la gente
+ *    acaba escribiendo `outline: none`.
+ *
+ * `outline-offset` NO es decorativo: separa el anillo del control con una
+ * franja del fondo, y es lo que garantiza que se distinga tambien sobre el
+ * relleno del boton primario.
+ *
+ * En este sistema NO existe ninguna regla `outline: none`. La guarda de
+ * `designSystem.guards.test.ts` falla si alguien la introduce (**F-03**).
+ */
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* --- Medios --------------------------------------------------------------- */
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* --- Movimiento ----------------------------------------------------------- */
+
+/*
+ * Guarda global: quien pide reducir el movimiento no recibe transiciones ni
+ * animaciones. No se eliminan del todo (duracion minima en lugar de cero) para
+ * no romper el codigo que dependa de un evento de fin de transicion.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

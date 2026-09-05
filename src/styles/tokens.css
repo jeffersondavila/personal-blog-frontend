@@ -1,0 +1,193 @@
+/*
+ * Tokens de diseno del proyecto (`Task/013`).
+ *
+ * Unica fuente de verdad de color, tipografia, espaciado, forma, layout, foco
+ * y movimiento. Ningun componente define un valor propio: todos consumen estos
+ * tokens. La guarda de `designSystem.guards.test.ts` lo comprueba.
+ *
+ * Mecanismo: CSS Custom Properties sobre `:root`. Es runtime nativo del
+ * navegador, participa en la cascada, no necesita ninguna dependencia y lo
+ * comparten el sitio publico (`Task/014`) y el panel (`Task/015`) sin ningun
+ * proveedor de React. La decision y sus alternativas estan en la ficha
+ * `TASK-013-design-system.md`, seccion 6.G.
+ *
+ * Nombres SEMANTICOS, no descriptivos: `--color-text-primary`, no `--gray-900`.
+ * Un componente pide la *funcion* del color, no su apariencia; eso es lo que
+ * permite cambiar la paleta sin recorrer los componentes.
+ *
+ * Los ratios de contraste de la paleta no son una opinion: estan calculados
+ * sobre estos mismos valores y verificados en `contrast.test.ts`. Cambiar un
+ * color aqui hace fallar esa prueba si rompe WCAG 2.1 AA.
+ */
+
+:root {
+  /* --- Color: superficies ------------------------------------------------ */
+
+  /** Lienzo de la pagina. */
+  --color-background: #ffffff;
+  /** Superficie diferenciada sobre el lienzo: tarjetas, celdas, bloques. */
+  --color-surface: #f4f6f8;
+
+  /* --- Color: texto ------------------------------------------------------ */
+
+  /** Texto principal. Maxima legibilidad. */
+  --color-text-primary: #16191d;
+  /** Texto secundario: fechas, metadatos, descripciones de apoyo. */
+  --color-text-secondary: #4c545c;
+  /** Texto sobre una superficie interactiva rellena. */
+  --color-text-on-interactive: #ffffff;
+
+  /* --- Color: bordes ----------------------------------------------------- */
+
+  /*
+   * Dos bordes con responsabilidades distintas, y la diferencia importa:
+   *
+   * - `--color-border` es DECORATIVO. Separa bloques que ya se distinguen por
+   *   posicion y espaciado (el contorno de una tarjeta). No es lo unico que
+   *   identifica nada, asi que no le aplica el umbral 3:1 de WCAG 1.4.11.
+   * - `--color-border-strong` DELIMITA un control. Es lo que hace reconocible
+   *   un boton secundario, de modo que si cumple 3:1 contra fondo y superficie.
+   */
+  --color-border: #d3d9de;
+  --color-border-strong: #6e7781;
+
+  /* --- Color: interaccion ------------------------------------------------ */
+
+  /** Accion y navegacion: fondo del boton primario y color de enlace. */
+  --color-interactive: #12467f;
+  /** Mismo rol, en hover o active. */
+  --color-interactive-hover: #0d3462;
+
+  /*
+   * Anillo de foco. Deliberadamente distinto de `--color-interactive`: el
+   * anillo debe leerse como "esto tiene el foco", no como "esto es un enlace".
+   * Se dibuja SIEMPRE con `outline-offset` (ver `foundation.css`), de modo que
+   * queda separado del control por una franja del fondo de la pagina. Esa
+   * separacion no es estetica: es lo que garantiza que el anillo contraste con
+   * un color adyacente y no se funda con el relleno del boton primario.
+   */
+  --color-focus: #0a5ad6;
+
+  /* --- Color: tonos de estado -------------------------------------------- */
+
+  /*
+   * Tres tonos, cada uno con consumidor real:
+   *
+   * - success: contenido `published` (MVP_SCOPE §3.2), confirmaciones.
+   * - warning: contenido `draft`, avisos que no bloquean.
+   * - danger:  fallo de carga con reintento (USER_FLOWS A.1, A.2) y
+   *            confirmaciones destructivas (B.5, B.11).
+   *
+   * El color NUNCA es el unico portador del significado: `Badge` exige texto y
+   * anade un glifo de silueta propia por tono (**A-07**).
+   */
+  --color-success-text: #14572f;
+  --color-success-surface: #e6f4ea;
+  --color-success-border: #4e9a6b;
+
+  --color-warning-text: #6b4300;
+  --color-warning-surface: #fdf3dd;
+  --color-warning-border: #98721d;
+
+  --color-danger-text: #8a1c1c;
+  --color-danger-surface: #fdeaea;
+  --color-danger-border: #b85c5c;
+
+  /* --- Tipografia -------------------------------------------------------- */
+
+  /*
+   * Stack del sistema: cero bytes descargados, renderizado nativo en cada
+   * plataforma y ninguna consideracion de licencia ni de privacidad. Ninguna
+   * fuente canonica del proyecto fija una familia propietaria.
+   */
+  --font-family-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-family-mono: ui-monospace, 'Cascadia Code', 'Consolas', 'Liberation Mono', monospace;
+
+  /*
+   * Escala. Los tamanos de cuerpo son fijos —el usuario ya controla su tamano
+   * base y `rem` lo respeta—; solo los encabezados son fluidos, que es donde la
+   * diferencia entre movil y escritorio se nota de verdad.
+   */
+  --font-size-xs: 0.8125rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: clamp(1.375rem, 1.19rem + 0.78vw, 1.75rem);
+  --font-size-2xl: clamp(1.75rem, 1.36rem + 1.56vw, 2.5rem);
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.55;
+
+  /* --- Espaciado --------------------------------------------------------- */
+
+  /*
+   * Escala unica y corta. Siete pasos con salto perceptible entre uno y otro:
+   * mas pasos solo producirian decisiones arbitrarias entre valores que nadie
+   * distingue.
+   */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* --- Forma ------------------------------------------------------------- */
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --border-width: 1px;
+
+  /* --- Foco -------------------------------------------------------------- */
+
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+
+  /* --- Layout ------------------------------------------------------------ */
+
+  /** Columna de lectura: ancho comodo para texto corrido (articulos, reviews). */
+  --layout-width-prose: 44rem;
+  /** Ancho amplio: listados, rejillas y dashboard. */
+  --layout-width-wide: 72rem;
+  /*
+   * Margen lateral fluido. `clamp` en lugar de media queries: el margen crece
+   * de forma continua con el viewport, sin ningun salto atado a un dispositivo
+   * concreto.
+   */
+  --layout-gutter: clamp(1rem, 0.5rem + 2.5vw, 2rem);
+
+  /* --- Breakpoints ------------------------------------------------------- */
+
+  /*
+   * Umbrales del proyecto, definidos por CONTENIDO y no por dispositivo:
+   *
+   * - `md`: a partir de aqui caben dos columnas de tarjetas comodamente.
+   * - `lg`: a partir de aqui cabe el layout de panel (lateral + contenido).
+   *
+   * Las primitivas de `Task/013` no los usan: son intrinsecamente responsive
+   * (`clamp`, `min()`, `flex-wrap`) y no necesitan ningun umbral. Existen como
+   * CONTRATO COMPARTIDO para que `Task/014` y `Task/015` no inventen cada una
+   * los suyos —que es exactamente el fallo que esta tarea debe evitar—.
+   *
+   * Limitacion real de la plataforma: una media query NO puede leer una custom
+   * property (`@media (min-width: var(--breakpoint-md))` no funciona). Quien
+   * los use debe repetir el literal y referirse a este token como su origen.
+   */
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+
+  /* --- Movimiento -------------------------------------------------------- */
+
+  /*
+   * Una sola transicion, compartida por boton y enlace. No hay mas movimiento
+   * en el sistema: `Task/013` no es una tarea de motion design. La guarda de
+   * `prefers-reduced-motion` esta en `foundation.css`.
+   */
+  --transition-fast: 120ms ease-out;
+}

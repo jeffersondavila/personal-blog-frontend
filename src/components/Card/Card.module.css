@@ -1,0 +1,22 @@
+/*
+ * Estilos de `Card`.
+ *
+ * La separacion respecto al fondo se consigue con superficie y borde, no con
+ * sombra: el lenguaje visual del proyecto es plano y editorial, y por eso el
+ * sistema no define tokens de elevacion (ficha `TASK-013`, decision D-13.9).
+ *
+ * El borde usa `--color-border`, el decorativo. Una tarjeta no es un control:
+ * su contorno refuerza una agrupacion que ya se percibe por superficie y
+ * espaciado, de modo que no le aplica el umbral 3:1 del criterio 1.4.11.
+ *
+ * Sin ancho propio: la tarjeta ocupa lo que le de su contenedor. Asi funciona
+ * igual en una columna de movil que en una rejilla de escritorio, sin ninguna
+ * media query.
+ */
+
+.card {
+  background-color: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+}
