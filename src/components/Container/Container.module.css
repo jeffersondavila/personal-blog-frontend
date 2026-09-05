@@ -1,0 +1,27 @@
+/*
+ * Estilos de `Container`.
+ *
+ * Responsive INTRINSECO: ni una media query. El ancho se resuelve con
+ * `max-width` y el margen lateral con un `clamp` que crece de forma continua
+ * con el viewport. Un contenedor asi funciona en cualquier ancho —incluido uno
+ * que nadie previo— en lugar de en los tres tamanos que alguien eligio.
+ *
+ * `width: 100%` + `max-width` y nunca un ancho rigido: eso es lo que garantiza
+ * que en pantalla estrecha no aparezca desplazamiento horizontal (**R-01**).
+ */
+
+.container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: var(--layout-gutter);
+}
+
+/** Columna de lectura: texto corrido de articulos y reviews. */
+.prose {
+  max-width: var(--layout-width-prose);
+}
+
+/** Ancho amplio: listados, rejillas y dashboard. */
+.wide {
+  max-width: var(--layout-width-wide);
+}

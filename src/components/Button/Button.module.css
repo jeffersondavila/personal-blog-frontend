@@ -1,0 +1,85 @@
+/*
+ * Estilos de `Button`.
+ *
+ * Todo valor viene de `tokens.css`. No hay ni un color, ni un espaciado ni un
+ * radio literal: la guarda de `designSystem.guards.test.ts` falla si aparece
+ * alguno.
+ *
+ * Aqui NO se declara nada sobre el foco. La estrategia es unica y global
+ * (`foundation.css`), y precisamente por eso ningun boton puede quedarse sin
+ * anillo por descuido.
+ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+
+  /*
+   * Altura minima comoda para tocar con el dedo, sin fijar una altura rigida:
+   * el boton sigue creciendo si su texto ocupa dos lineas.
+   */
+  min-height: 2.75rem;
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-md);
+
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-md);
+
+  font-family: inherit;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-tight);
+  text-align: center;
+
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+/*
+ * Estado deshabilitado.
+ *
+ * Se comunica con TRES senales simultaneas y no solo con el color (**A-07**):
+ * el atributo `disabled` —que los lectores de pantalla anuncian y que impide
+ * el foco y la activacion—, el cursor y la opacidad. La primera es la que de
+ * verdad importa; las otras dos son refuerzo visual.
+ */
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* --- Variante primaria ---------------------------------------------------- */
+
+.primary {
+  background-color: var(--color-interactive);
+  border-color: var(--color-interactive);
+  color: var(--color-text-on-interactive);
+}
+
+.primary:hover:not(:disabled) {
+  background-color: var(--color-interactive-hover);
+  border-color: var(--color-interactive-hover);
+}
+
+/* --- Variante secundaria -------------------------------------------------- */
+
+/*
+ * El borde usa `--color-border-strong` y no el borde decorativo: es lo unico
+ * que identifica los limites de este control, de modo que le aplica el umbral
+ * de 3:1 del criterio 1.4.11. Ese par esta verificado en `contrast.test.ts`.
+ */
+.secondary {
+  background-color: var(--color-background);
+  border-color: var(--color-border-strong);
+  color: var(--color-interactive);
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: var(--color-surface);
+  color: var(--color-interactive-hover);
+}

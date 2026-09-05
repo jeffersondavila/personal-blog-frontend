@@ -1,0 +1,81 @@
+/*
+ * Estilos de `Stack`.
+ *
+ * `display: flex` con `gap`: la separacion vive entre los hijos y no como
+ * margen de cada uno, de modo que no hay margenes que colapsen ni un ultimo
+ * elemento con espacio sobrante debajo.
+ *
+ * Todos los valores de `gap` salen de la escala de `tokens.css`. Ninguna clase
+ * de este archivo contiene una medida literal.
+ */
+
+.stack {
+  display: flex;
+}
+
+/* --- Eje ------------------------------------------------------------------ */
+
+.vertical {
+  flex-direction: column;
+}
+
+.horizontal {
+  flex-direction: row;
+}
+
+/*
+ * Envoltura. Es lo unico que esta primitiva necesita para ser responsive: una
+ * fila de etiquetas o de botones se reparte en varias lineas cuando no cabe,
+ * en cualquier ancho y sin ningun breakpoint.
+ */
+.wrap {
+  flex-wrap: wrap;
+}
+
+/* --- Separacion ----------------------------------------------------------- */
+
+.gap-2xs {
+  gap: var(--space-2xs);
+}
+
+.gap-xs {
+  gap: var(--space-xs);
+}
+
+.gap-sm {
+  gap: var(--space-sm);
+}
+
+.gap-md {
+  gap: var(--space-md);
+}
+
+.gap-lg {
+  gap: var(--space-lg);
+}
+
+.gap-xl {
+  gap: var(--space-xl);
+}
+
+.gap-2xl {
+  gap: var(--space-2xl);
+}
+
+/* --- Alineacion en el eje transversal ------------------------------------- */
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+
+.align-stretch {
+  align-items: stretch;
+}
