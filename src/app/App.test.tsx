@@ -23,7 +23,10 @@ import {
   type FetchFalso,
 } from '../test/respuestas';
 
-const CONFIG: AppConfig = { apiBaseUrl: 'http://backend.de-prueba.test' };
+const CONFIG: AppConfig = {
+  apiBaseUrl: 'http://backend.de-prueba.test',
+  siteBaseUrl: 'http://sitio.de-prueba.test',
+};
 
 /** Monta la aplicacion completa en la ruta indicada. */
 function renderApp(initialPath: string) {

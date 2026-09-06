@@ -13,14 +13,13 @@ import { useHttpClient } from '../app/httpClientContext';
 import { Container, EmptyState, ErrorState, LoadingState, Pagination, Stack } from '../components';
 import { TagFilter } from '../entities/tags/TagFilter';
 import { VideoCard } from '../entities/videos/VideoCard';
+import { Seo, DESCRIPCION_DE_VIDEOS } from '../features/seo';
 import { useAsyncResource } from '../hooks/useAsyncResource';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useParametrosDeListado } from '../hooks/useParametrosDeListado';
 import { RUTAS } from '../lib/rutas';
 import { fetchVideos } from '../services/public';
 
 export function VideosPage() {
-  useDocumentTitle('Videos');
   const cliente = useHttpClient();
   const { page, tag } = useParametrosDeListado();
 
@@ -33,6 +32,7 @@ export function VideosPage() {
   return (
     <Container width="wide">
       <Stack gap="xl">
+        <Seo titulo="Videos" descripcion={DESCRIPCION_DE_VIDEOS} ruta={RUTAS.videos} />
         <h1>Videos</h1>
 
         <TagFilter seccion={RUTAS.videos} />

@@ -125,6 +125,30 @@ Reglas que el sitio cumple y la suite fija:
 
 ---
 
+## 3.3 SEO, accesibilidad y rendimiento (`Task/016`)
+
+Metadatos por URL —`title`, `description`, `canonical`, Open Graph y JSON-LD— con el
+componente `src/features/seo/Seo.tsx`. **Sin dependencias nuevas**: React 19 iza
+`<title>`, `<meta>` y `<link>` al `<head>` de forma nativa, así que `react-helmet` y
+`react-helmet-async` son innecesarios.
+
+| Artefacto | Dónde se genera |
+| --- | --- |
+| `robots.txt` | En el **build**, por un plugin de `vite.config.ts` que usa `robots.config.ts`. No puede vivir en `public/`: su línea `Sitemap:` depende del entorno |
+| `og:image` | Activo **estático** `public/og-imagen.png`, 1200 × 630 (decisión **D-016-A**) |
+| Open Graph **de sitio** | `index.html`: `og:site_name`, `og:image` y `twitter:card`. Es lo único que ve un *crawler* **sin** JavaScript |
+| Open Graph **por página** | El componente `Seo`, tras hidratar |
+| `sitemap.xml` | **El backend**, no este repositorio |
+
+> **Limitación conocida.** Los metadatos por URL existen **después** de hidratar, así que
+> un *crawler* que no ejecuta JavaScript no los ve. Está medido, y es la decisión abierta
+> **D-21** ([ADR-009](../personal-blog-infra/docs/adr/ADR-009-rendering-strategy-for-crawlers.md),
+> en *Propuesta*). No se reparte entre `index.html` y `Seo` nada que se solape: React 19
+> **no deduplica** metadatos, así que hacerlo produciría duplicados contradictorios.
+
+Las guardas de `src/app/seo.guards.test.ts` comprueban estos artefactos sobre el `dist/`
+**real**, no sobre el código fuente.
+
 ## 4. Stack
 
 | Pieza | Elección |
@@ -177,16 +201,30 @@ Copy-Item .env.example .env.local
 
 | Variable | Significado |
 | --- | --- |
-| `VITE_API_BASE_URL` | Origen del API del backend, **sin** `/api/v1` y **sin** barra final. |
+| `VITE_API_BASE_URL` | Origen del **API** del backend, **sin** `/api/v1` y **sin** barra final. |
+| `VITE_SITE_BASE_URL` | Origen público del **sitio**, sin barra final. Añadida por `Task/016`. |
+
+**No son la misma.** Con la topología **D-15** el sitio vive en el dominio raíz y el API en
+un subdominio, así que confundirlas produciría un `canonical` apuntando al API. En local
+coinciden porque Traefik sirve ambos en el mismo origen, y esa coincidencia es justo lo que
+hace fácil confundirlas.
+
+`VITE_SITE_BASE_URL` la consumen `canonical` (**E-04**), `og:url` (**E-03**) y las URL
+absolutas del marcado. La línea `Sitemap:` de `robots.txt` se compone en cambio con
+`VITE_API_BASE_URL`, porque **el sitemap lo sirve el backend**.
+
+Ninguna de las dos fija un dominio de producción: eso es la decisión **D-07**, abierta hasta
+`Task/035`.
 
 Por qué es el origen y no la base del contrato: `/api/v1` versiona los recursos, pero
 `/health` vive fuera de ese prefijo a propósito
 ([`api-contracts.md`](../personal-blog-infra/docs/architecture/api-contracts.md),
 sección 2). Una única base que sirva para ambos tiene que situarse por encima de los dos.
 
-La configuración se **valida al arrancar** (`src/lib/config/env.ts`): si la variable
-falta o no es una URL absoluta `http`/`https`, la aplicación no monta y el error dice
-cuál es la variable. Es el requisito T-01 de
+La configuración se **valida al arrancar** (`src/lib/config/env.ts`): si **alguna** de las
+dos falta o no es una URL absoluta `http`/`https`, la aplicación no monta y el error dice
+cuál es la variable. Es *fail-closed* a propósito: un origen inventado produciría un
+`canonical` apuntando a un sitio que no es este, y eso es peor que no arrancar. Es el requisito T-01 de
 [`non-functional-requirements.md`](../personal-blog-infra/docs/architecture/non-functional-requirements.md).
 **El build también la exige**: Vite la incrusta en el bundle.
 

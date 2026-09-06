@@ -42,6 +42,19 @@ COPY . .
 ARG VITE_API_BASE_URL=http://localhost:8081
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 
+# Origen publico del SITIO, anadido por `Task/016`. No es el del API: lo consumen
+# `canonical` (E-04) y `og:url` (E-03), que necesitan URL absolutas del sitio.
+#
+# En local coinciden porque Traefik sirve sitio y API en el mismo origen. En
+# produccion NO coinciden (D-15), y el valor real lo fijaran `Task/034` y
+# `Task/035` cuando D-07 se resuelva.
+#
+# El Compose de `personal-blog-infra` lo pasa explicitamente desde
+# `TRAEFIK_HTTP_HOST_PORT`, igual que VITE_API_BASE_URL. Este valor por defecto
+# solo sirve para una construccion suelta, fuera del Compose.
+ARG VITE_SITE_BASE_URL=http://localhost:8081
+ENV VITE_SITE_BASE_URL=${VITE_SITE_BASE_URL}
+
 RUN npm run build
 
 # ---------------------------------------------------------------------------
