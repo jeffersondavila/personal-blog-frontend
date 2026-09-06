@@ -25,5 +25,12 @@
     "noFallthroughCasesInSwitch": true,
     "erasableSyntaxOnly": true
   },
-  "include": ["vite.config.ts", "eslint.config.js"]
+  "include": [
+    "vite.config.ts",
+    "eslint.config.js",
+    // Configuracion de build de `Task/016`: genera `robots.txt`, cuya linea
+    // `Sitemap:` depende del entorno y por eso no puede vivir en `public/`.
+    "robots.config.ts",
+    "robots.config.test.ts"
+  ]
 }

@@ -27,10 +27,10 @@ import {
 } from '../components';
 import { PublishedDate } from '../entities/content/PublishedDate';
 import tarjeta from '../entities/content/tarjeta.module.css';
+import { DESCRIPCION_DE_LA_BUSQUEDA, Seo } from '../features/seo';
 import { useAsyncResource } from '../hooks/useAsyncResource';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { leerPagina } from '../hooks/useParametrosDeListado';
-import { rutaDeContenido, SECCIONES } from '../lib/rutas';
+import { rutaDeContenido, RUTAS, SECCIONES } from '../lib/rutas';
 import {
   fetchSearch,
   LONGITUD_MINIMA_DE_BUSQUEDA,
@@ -53,8 +53,6 @@ export function SearchPage() {
   const termino = normalizarTermino(parametros.get('q'));
   const page = leerPagina(parametros.get('page'));
 
-  useDocumentTitle(termino === null ? 'Búsqueda' : `Resultados para «${termino}»`);
-
   const cargar = useCallback(
     (signal: AbortSignal): Promise<Pagina<ResultadoDeBusqueda> | null> =>
       termino === null ? Promise.resolve(null) : fetchSearch(cliente, { q: termino, page }, signal),
@@ -65,6 +63,12 @@ export function SearchPage() {
   return (
     <Container width="wide">
       <Stack gap="xl">
+        <Seo
+          titulo={termino === null ? 'Búsqueda' : `Resultados para «${termino}»`}
+          descripcion={DESCRIPCION_DE_LA_BUSQUEDA}
+          ruta={RUTAS.buscar}
+          indexable={false}
+        />
         <h1>{termino === null ? 'Búsqueda' : `Resultados para «${termino}»`}</h1>
 
         {termino === null && (

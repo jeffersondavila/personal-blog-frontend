@@ -13,14 +13,13 @@ import { useHttpClient } from '../app/httpClientContext';
 import { Container, EmptyState, ErrorState, LoadingState, Pagination, Stack } from '../components';
 import { PostCard } from '../entities/posts/PostCard';
 import { TagFilter } from '../entities/tags/TagFilter';
+import { Seo, DESCRIPCION_DE_ARTICULOS } from '../features/seo';
 import { useAsyncResource } from '../hooks/useAsyncResource';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useParametrosDeListado } from '../hooks/useParametrosDeListado';
 import { RUTAS } from '../lib/rutas';
 import { fetchPosts } from '../services/public';
 
 export function PostsPage() {
-  useDocumentTitle('Artículos');
   const cliente = useHttpClient();
   const { page, tag } = useParametrosDeListado();
 
@@ -33,6 +32,7 @@ export function PostsPage() {
   return (
     <Container width="wide">
       <Stack gap="xl">
+        <Seo titulo="Artículos" descripcion={DESCRIPCION_DE_ARTICULOS} ruta={RUTAS.articulos} />
         <h1>Artículos</h1>
 
         <TagFilter seccion={RUTAS.articulos} />

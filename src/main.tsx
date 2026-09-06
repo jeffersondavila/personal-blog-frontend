@@ -4,9 +4,9 @@
  * Hace tres cosas, en este orden y por este motivo:
  *
  * 1. **Lee y valida la configuracion** antes que nada. Si `VITE_API_BASE_URL`
- *    falta o es invalida, la aplicacion no monta y el error dice cual es la
- *    variable. Requisito T-01: configuracion por variables de entorno,
- *    validada al arrancar.
+ *    o `VITE_SITE_BASE_URL` faltan o son invalidas, la aplicacion no monta y el
+ *    error dice cual es la variable. Requisito T-01: configuracion por
+ *    variables de entorno, validada al arrancar.
  * 2. **Construye el router de navegador** a partir de la tabla de rutas
  *    compartida con las pruebas.
  * 3. **Monta** el arbol de React sobre el contenedor de `index.html`.

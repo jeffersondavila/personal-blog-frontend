@@ -27,6 +27,24 @@ export interface AppConfig {
    * tiene que situarse por encima de ambos.
    */
   readonly apiBaseUrl: string;
+
+  /**
+   * Origen publico del **sitio**, ya normalizado: sin barra final.
+   *
+   * No es el del API. Con **D-15** el sitio vive en el dominio raiz y el API en
+   * un subdominio, asi que son dos valores distintos y confundirlos produciria
+   * `canonical` y `og:url` apuntando al API.
+   *
+   * Lo exigen `canonical` (**E-04**), `og:url` (**E-03**) y el sitemap
+   * (**E-05**): las tres necesitan URL **absolutas**, y una SPA no puede
+   * deducir su propio origen canonico de `location` —un mismo `dist/` se sirve
+   * detras de Traefik en local y en otro origen en produccion, y `location`
+   * diria el de cada momento, no el canonico—.
+   *
+   * **No fija ningun dominio**: el dominio concreto es **D-07**, que sigue
+   * abierta hasta `Task/035`. Aqui solo se nombra la variable.
+   */
+  readonly siteBaseUrl: string;
 }
 
 /**
@@ -36,9 +54,10 @@ export interface AppConfig {
  */
 export interface EnvSource {
   readonly VITE_API_BASE_URL?: string | undefined;
+  readonly VITE_SITE_BASE_URL?: string | undefined;
 }
 
-/** Esquemas admitidos para el origen del API. */
+/** Esquemas admitidos para cualquier origen configurado. */
 const ESQUEMAS_ADMITIDOS = new Set(['http:', 'https:']);
 
 /**
@@ -59,16 +78,45 @@ export class ConfigurationError extends Error {
  * @throws {ConfigurationError} Si alguna variable falta o no es utilizable.
  */
 export function readAppConfig(source: EnvSource): AppConfig {
-  return { apiBaseUrl: leerOrigenDelApi(source.VITE_API_BASE_URL) };
+  return {
+    apiBaseUrl: leerOrigen(source.VITE_API_BASE_URL, {
+      variable: 'VITE_API_BASE_URL',
+      queEs: 'el origen del API del backend',
+      ejemplo: 'http://localhost:8000',
+    }),
+    siteBaseUrl: leerOrigen(source.VITE_SITE_BASE_URL, {
+      variable: 'VITE_SITE_BASE_URL',
+      queEs: 'el origen publico del sitio',
+      ejemplo: 'http://localhost:8081',
+    }),
+  };
 }
 
-function leerOrigenDelApi(valor: string | undefined): string {
+/** Descripcion de la variable que se esta leyendo, para los mensajes de error. */
+interface OrigenEsperado {
+  readonly variable: string;
+  readonly queEs: string;
+  readonly ejemplo: string;
+}
+
+/**
+ * Lee un origen absoluto y lo normaliza, o falla.
+ *
+ * Es una sola funcion parametrizada y no una por variable: la regla —absoluta,
+ * `http`/`https`, sin barra final— es identica para las dos, y duplicarla
+ * invitaria a que una divergiera de la otra en silencio.
+ *
+ * *Fail-closed*: ante un valor ausente o no utilizable **lanza**, nunca
+ * devuelve un valor por omision. Un origen inventado produciria un `canonical`
+ * apuntando a un sitio que no es este, que es peor que no arrancar.
+ */
+function leerOrigen(valor: string | undefined, esperado: OrigenEsperado): string {
   const recortado = valor?.trim() ?? '';
 
   if (recortado === '') {
     throw new ConfigurationError(
-      'Falta la variable de entorno VITE_API_BASE_URL. Copia .env.example a .env.local ' +
-        'y define el origen del API del backend.',
+      `Falta la variable de entorno ${esperado.variable}. Copia .env.example a .env.local ` +
+        `y define ${esperado.queEs}.`,
     );
   }
 
@@ -77,15 +125,15 @@ function leerOrigenDelApi(valor: string | undefined): string {
     url = new URL(recortado);
   } catch {
     throw new ConfigurationError(
-      'VITE_API_BASE_URL debe ser una URL absoluta, por ejemplo http://localhost:8000.',
+      `${esperado.variable} debe ser una URL absoluta, por ejemplo ${esperado.ejemplo}.`,
     );
   }
 
   if (!ESQUEMAS_ADMITIDOS.has(url.protocol)) {
-    throw new ConfigurationError('VITE_API_BASE_URL debe usar el esquema http o https.');
+    throw new ConfigurationError(`${esperado.variable} debe usar el esquema http o https.`);
   }
 
   // Se normaliza sin barra final para que la configuracion tenga una sola
-  // forma canonica; el cliente HTTP se encarga de unir el origen y la ruta.
+  // forma canonica; quien la consuma se encarga de unir el origen y la ruta.
   return recortado.replace(/\/+$/, '');
 }

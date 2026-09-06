@@ -7,14 +7,23 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
 import { NotFoundPage } from './NotFoundPage';
+import { AppConfigContext } from '../app/appConfigContext';
 import { RUTAS, SECCIONES } from '../lib/rutas';
 import { tituloDelDocumento } from '../hooks/useDocumentTitle';
+import { CONFIG_DE_PRUEBA } from '../test/renderRuta';
 
+/**
+ * La 404 emite sus metadatos con `Seo` desde `Task/016`, y `Seo` lee el origen
+ * del sitio de la configuracion. Se le da el mismo doble que usan `renderRuta` y
+ * `renderPanel`, en lugar de uno propio.
+ */
 function renderNotFound() {
   return render(
-    <MemoryRouter>
-      <NotFoundPage />
-    </MemoryRouter>,
+    <AppConfigContext value={CONFIG_DE_PRUEBA}>
+      <MemoryRouter>
+        <NotFoundPage />
+      </MemoryRouter>
+    </AppConfigContext>,
   );
 }
 
