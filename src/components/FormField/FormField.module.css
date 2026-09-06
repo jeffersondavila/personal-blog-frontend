@@ -1,0 +1,63 @@
+/*
+ * Estilos de `FormField`.
+ *
+ * El control se estiliza por selector de descendiente y no por clase: el campo
+ * recibe `<input>`, `<textarea>` y `<select>` nativos, y darle una clase a cada
+ * uno obligaria a que todos los formularios se acordaran de ponerla.
+ *
+ * No hay `outline: none` en ninguna parte: la estrategia de foco es la unica de
+ * `Task/013` (requisito **A-06**).
+ */
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.etiqueta {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* Texto, no color: el requisito A-07 prohibe depender del color. */
+.obligatorio {
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+}
+
+.descripcion {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.error {
+  margin: 0;
+  color: var(--color-danger-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.campo :is(input, textarea, select) {
+  width: 100%;
+  padding: var(--space-2xs) var(--space-xs);
+  border: var(--border-width) solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font: inherit;
+}
+
+/*
+ * El borde de error acompana al mensaje; nunca lo sustituye. Quien no distingue
+ * el color sigue leyendo el texto del error, que es lo que A-07 exige.
+ */
+.campo :is(input, textarea, select)[aria-invalid='true'] {
+  border-color: var(--color-danger-border);
+}
+
+.campo textarea {
+  min-height: 8rem;
+  resize: vertical;
+}

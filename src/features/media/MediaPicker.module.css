@@ -1,0 +1,48 @@
+/*
+ * Estilos del selector de medios.
+ *
+ * La galeria es una rejilla `auto-fit`: se adapta desde 320 px hasta escritorio
+ * sin ninguna media query.
+ */
+
+.titulo {
+  margin: 0;
+  font-weight: var(--font-weight-medium);
+}
+
+.nombre,
+.nota {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.miniatura {
+  max-inline-size: 12rem;
+  block-size: auto;
+  border-radius: var(--radius-sm);
+}
+
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(10rem, 100%), 1fr));
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opcion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+  inline-size: 100%;
+  padding: var(--space-2xs);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}

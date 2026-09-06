@@ -17,7 +17,9 @@
  * Las cinco primitivas son de `Task/013`. `Task/014` anade cinco componentes
  * compartidos, cada uno con al menos dos consumidores reales en el sitio
  * publico: `Pagination`, `ExternalLink`, `LoadingState`, `EmptyState` y
- * `ErrorState`. Ninguno conoce el dominio ni llama al API
+ * `ErrorState`. `Task/015` anade **solo dos** —`FormField` y `FormFeedback`—,
+ * que son el unico punto donde se cablean los atributos de los que dependen los
+ * requisitos **A-03** y **A-08**. Ninguno conoce el dominio ni llama al API
  * (`software-architecture.md`, seccion 4.3).
  *
  * Los tokens NO se exportan desde aqui. Viven en `src/styles/tokens.css`, los
@@ -49,6 +51,12 @@ export type { ErrorStateProps } from './ErrorState/ErrorState';
 
 export { ExternalLink } from './ExternalLink/ExternalLink';
 export type { ExternalLinkProps } from './ExternalLink/ExternalLink';
+
+export { FormField } from './FormField/FormField';
+export type { AtributosDelControl, FormFieldProps } from './FormField/FormField';
+
+export { FormFeedback } from './FormFeedback/FormFeedback';
+export type { FormFeedbackProps, TonoDeFeedback } from './FormFeedback/FormFeedback';
 
 export { LoadingState } from './LoadingState/LoadingState';
 export type { LoadingStateProps } from './LoadingState/LoadingState';

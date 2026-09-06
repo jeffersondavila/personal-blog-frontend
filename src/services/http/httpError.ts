@@ -44,6 +44,7 @@ export interface HttpErrorData {
   readonly code?: string | undefined;
   readonly details?: Readonly<Record<string, unknown>> | undefined;
   readonly requestId?: string | undefined;
+  readonly retryAfterSeconds?: number | undefined;
   readonly cause?: unknown;
 }
 
@@ -75,6 +76,9 @@ export class HttpError extends Error {
   /** Correlation ID, para localizar la peticion en los logs del backend. */
   readonly requestId: string | undefined;
 
+  /** Espera del `429`, leida de Retry-After; ausente si no es un entero positivo. */
+  readonly retryAfterSeconds: number | undefined;
+
   constructor(kind: HttpErrorKind, message: string, data: HttpErrorData = {}) {
     super(message, data.cause === undefined ? undefined : { cause: data.cause });
     this.kind = kind;
@@ -82,6 +86,7 @@ export class HttpError extends Error {
     this.code = data.code;
     this.details = data.details;
     this.requestId = data.requestId;
+    this.retryAfterSeconds = data.retryAfterSeconds;
   }
 }
 
@@ -102,7 +107,18 @@ export function httpErrorFromResponse(response: Response, body: unknown): HttpEr
     code: leerTexto(error?.code),
     details: leerDetalles(error?.details),
     requestId: leerTexto(error?.request_id),
+    retryAfterSeconds:
+      response.status === 429 ? leerRetryAfter(response.headers.get('Retry-After')) : undefined,
   });
+}
+
+/** El backend emite segundos enteros, nunca una fecha HTTP ni un campo de details. */
+function leerRetryAfter(valor: string | null): number | undefined {
+  if (valor === null || !/^[0-9]+$/.test(valor)) {
+    return undefined;
+  }
+  const segundos = Number(valor);
+  return Number.isSafeInteger(segundos) && segundos > 0 ? segundos : undefined;
 }
 
 function extraerCuerpoDeError(body: unknown): CuerpoDeError | undefined {

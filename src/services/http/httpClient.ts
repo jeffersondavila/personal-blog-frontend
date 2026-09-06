@@ -26,11 +26,27 @@ export interface HttpRequestOptions {
   readonly method?: string;
   /** Parametros de consulta. Los `undefined` se omiten. */
   readonly query?: Readonly<Record<string, QueryValue>>;
-  /** Cuerpo de la peticion. Se serializa como JSON. */
+  /**
+   * Cuerpo de la peticion.
+   *
+   * Se serializa como JSON, **salvo un `FormData`**, que viaja tal cual: lo
+   * exige la carga `multipart` de medios (`api-contracts.md` seccion 14.1).
+   */
   readonly body?: unknown;
   readonly headers?: Readonly<Record<string, string>>;
   /** Permite cancelar la peticion desde la capa superior. */
   readonly signal?: AbortSignal;
+  /**
+   * Politica de credenciales de `fetch`. **Ausente por defecto**, que es lo que
+   * mantiene el comportamiento del sitio publico exactamente como estaba.
+   *
+   * Los adaptadores administrativos pasan `'include'` (decision **D-015-C**):
+   * la topologia logica **D-15** situa el API en un subdominio, asi que la
+   * peticion del panel es *cross-origin* y sin esto el navegador **no envia**
+   * la cookie de sesion —que es el unico transporte de la credencial
+   * (`api-contracts.md` seccion 13.3)—.
+   */
+  readonly credentials?: RequestCredentials;
 }
 
 /** Cliente HTTP hacia el API del backend. */
@@ -161,19 +177,29 @@ function construirUrl(
   return url.toString();
 }
 
+/**
+ * Compone el `RequestInit`.
+ *
+ * Un `FormData` **no se serializa y no lleva `Content-Type` propio**: el
+ * navegador tiene que escribir la cabecera con su `boundary`, y fijarla a mano
+ * produce un cuerpo que el servidor no puede separar. Es el unico caso en que
+ * el cliente entrega el cuerpo sin tocarlo (decision **D-015-D**).
+ */
 function construirPeticion(options: HttpRequestOptions): RequestInit {
   const headers = new Headers({ Accept: 'application/json', ...options.headers });
   const enviaCuerpo = options.body !== undefined;
+  const esFormulario = options.body instanceof FormData;
 
-  if (enviaCuerpo && !headers.has('Content-Type')) {
+  if (enviaCuerpo && !esFormulario && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
   }
 
   return {
     method: options.method ?? 'GET',
     headers,
-    ...(enviaCuerpo ? { body: JSON.stringify(options.body) } : {}),
+    ...(enviaCuerpo ? { body: esFormulario ? options.body : JSON.stringify(options.body) } : {}),
     ...(options.signal ? { signal: options.signal } : {}),
+    ...(options.credentials ? { credentials: options.credentials } : {}),
   };
 }
 
