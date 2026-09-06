@@ -22,6 +22,10 @@ import styles from './AdminLayout.module.css';
 import { AdminSessionProvider } from './AdminSessionProvider';
 import { useAdminSession } from './adminSessionContext';
 import { Button, Container } from '../components';
+// Import **directo** y no por el barril: el barril arrastra `Seo` y los
+// constructores de JSON-LD, que el panel no usa. Mantener su grafo minimo es
+// coherente con **P-05** y evita cargar modulos que no hacen falta aqui.
+import { NoIndex } from '../features/seo/NoIndex';
 import { RUTAS } from '../lib/rutas';
 import { RUTAS_ADMIN, SECCIONES_ADMIN } from '../lib/rutasAdmin';
 
@@ -78,6 +82,16 @@ function NavegacionDelPanel() {
 export function AdminLayout() {
   return (
     <AdminSessionProvider>
+      {/* `noindex` de TODO `/admin/*` en un solo sitio (requisito E-06): este
+          layout envuelve las 18 superficies del panel, incluida la de acceso.
+          Ponerlo pagina por pagina dejaria que una nueva naciera indexable.
+
+          Alcance real: la etiqueta existe despues de hidratar, y `robots.txt`
+          cubre el rastreo pero no garantiza la no indexacion. La garantia sin
+          JavaScript exige `X-Robots-Tag`, que es de `Task/018` (S-05). Por eso
+          E-06 queda PARCIAL en `Task/016`. */}
+      <NoIndex />
+
       <a className={styles['skipLink']} href="#panel">
         Saltar al contenido
       </a>

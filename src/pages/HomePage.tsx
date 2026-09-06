@@ -24,6 +24,7 @@ import { Link } from 'react-router';
 
 import styles from './HomePage.module.css';
 import listado from './listado.module.css';
+import { useAppConfig } from '../app/appConfigContext';
 import { useHttpClient } from '../app/httpClientContext';
 import { Container, EmptyState, ErrorState, LoadingState, Stack } from '../components';
 import { ReviewCard } from '../entities/book-reviews/ReviewCard';
@@ -31,8 +32,8 @@ import { MediaImage } from '../entities/media/MediaImage';
 import { PostCard } from '../entities/posts/PostCard';
 import { ProjectCard } from '../entities/projects/ProjectCard';
 import { VideoCard } from '../entities/videos/VideoCard';
+import { DESCRIPCION_DEL_SITIO, esquemaDelSitio, Seo } from '../features/seo';
 import { useAsyncResource, type Cargador } from '../hooks/useAsyncResource';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { RUTAS } from '../lib/rutas';
 import { NOMBRE_DEL_SITIO } from '../lib/site';
 import {
@@ -49,7 +50,7 @@ import {
 const DESTACADOS: ParametrosDeListado = { featured: true, pageSize: 3 };
 
 export function HomePage() {
-  useDocumentTitle(null);
+  const { siteBaseUrl } = useAppConfig();
   const cliente = useHttpClient();
 
   const cargarPerfil = useCallback(
@@ -76,6 +77,12 @@ export function HomePage() {
   return (
     <Container width="wide">
       <Stack gap="2xl">
+        <Seo
+          titulo={null}
+          descripcion={DESCRIPCION_DEL_SITIO}
+          ruta={RUTAS.inicio}
+          jsonLd={[esquemaDelSitio(siteBaseUrl)]}
+        />
         <Presentacion cargar={cargarPerfil} />
 
         <SeccionDestacados

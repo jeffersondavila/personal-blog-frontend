@@ -13,14 +13,20 @@
 import { Link } from 'react-router';
 
 import { Container, Stack } from '../components';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { DESCRIPCION_DE_LA_404, Seo } from '../features/seo';
 import { RUTAS, SECCIONES } from '../lib/rutas';
 
 export function NotFoundPage() {
-  useDocumentTitle('Página no encontrada');
-
   return (
     <Container width="prose">
+      {/* `noindex` (E-06). El CODIGO HTTP `404` real depende del *hosting* y es de
+          `Task/034`: un servidor estatico no distingue esta ruta de un slug valido. */}
+      <Seo
+        titulo="Página no encontrada"
+        descripcion={DESCRIPCION_DE_LA_404}
+        ruta={RUTAS.inicio}
+        indexable={false}
+      />
       <Stack gap="lg">
         <h1>404: página no encontrada</h1>
 

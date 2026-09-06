@@ -7,14 +7,13 @@ import { useHttpClient } from '../app/httpClientContext';
 import { Container, EmptyState, ErrorState, LoadingState, Pagination, Stack } from '../components';
 import { ReviewCard } from '../entities/book-reviews/ReviewCard';
 import { TagFilter } from '../entities/tags/TagFilter';
+import { Seo, DESCRIPCION_DE_REVIEWS } from '../features/seo';
 import { useAsyncResource } from '../hooks/useAsyncResource';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useParametrosDeListado } from '../hooks/useParametrosDeListado';
 import { RUTAS } from '../lib/rutas';
 import { fetchBookReviews } from '../services/public';
 
 export function BookReviewsPage() {
-  useDocumentTitle('Reviews de libros');
   const cliente = useHttpClient();
   const { page, tag } = useParametrosDeListado();
 
@@ -27,6 +26,7 @@ export function BookReviewsPage() {
   return (
     <Container width="wide">
       <Stack gap="xl">
+        <Seo titulo="Reviews de libros" descripcion={DESCRIPCION_DE_REVIEWS} ruta={RUTAS.reviews} />
         <h1>Reviews de libros</h1>
 
         <TagFilter seccion={RUTAS.reviews} />

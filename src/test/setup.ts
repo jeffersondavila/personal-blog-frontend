@@ -1,7 +1,7 @@
 /**
  * Preparacion comun de la suite de pruebas.
  *
- * Dos responsabilidades, ambas necesarias:
+ * Tres responsabilidades, todas necesarias:
  *
  * 1. Anadir los *matchers* de `@testing-library/jest-dom` (`toBeInTheDocument`,
  *    `toHaveAttribute`, ...) a `expect`.
@@ -19,8 +19,10 @@
  */
 import '@testing-library/jest-dom/vitest';
 
-import { cleanup } from '@testing-library/react';
+import { cleanup, configure } from '@testing-library/react';
 import { afterEach } from 'vitest';
+
+configure({ asyncUtilTimeout: 4000 });
 
 afterEach(() => {
   cleanup();

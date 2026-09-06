@@ -20,12 +20,12 @@ import {
   LoadingState,
   Stack,
 } from '../components';
+import { DESCRIPCION_DE_CONTACTO, Seo } from '../features/seo';
 import { useAsyncResource } from '../hooks/useAsyncResource';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { RUTAS } from '../lib/rutas';
 import { fetchProfile } from '../services/public';
 
 export function ContactPage() {
-  useDocumentTitle('Contacto');
   const cliente = useHttpClient();
 
   const cargar = useCallback((signal: AbortSignal) => fetchProfile(cliente, signal), [cliente]);
@@ -34,6 +34,7 @@ export function ContactPage() {
   return (
     <Container width="prose">
       <Stack gap="lg">
+        <Seo titulo="Contacto" descripcion={DESCRIPCION_DE_CONTACTO} ruta={RUTAS.contacto} />
         <h1>Contacto</h1>
 
         {estado.fase === 'cargando' && <LoadingState>Cargando los datos de contacto…</LoadingState>}

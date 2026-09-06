@@ -7,14 +7,13 @@ import { useHttpClient } from '../app/httpClientContext';
 import { Container, EmptyState, ErrorState, LoadingState, Pagination, Stack } from '../components';
 import { ProjectCard } from '../entities/projects/ProjectCard';
 import { TagFilter } from '../entities/tags/TagFilter';
+import { Seo, DESCRIPCION_DE_PROYECTOS } from '../features/seo';
 import { useAsyncResource } from '../hooks/useAsyncResource';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useParametrosDeListado } from '../hooks/useParametrosDeListado';
 import { RUTAS } from '../lib/rutas';
 import { fetchProjects } from '../services/public';
 
 export function ProjectsPage() {
-  useDocumentTitle('Proyectos y laboratorio');
   const cliente = useHttpClient();
   const { page, tag } = useParametrosDeListado();
 
@@ -27,6 +26,11 @@ export function ProjectsPage() {
   return (
     <Container width="wide">
       <Stack gap="xl">
+        <Seo
+          titulo="Proyectos y laboratorio"
+          descripcion={DESCRIPCION_DE_PROYECTOS}
+          ruta={RUTAS.proyectos}
+        />
         <h1>Proyectos y laboratorio</h1>
 
         <TagFilter seccion={RUTAS.proyectos} />

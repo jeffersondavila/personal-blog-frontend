@@ -15,7 +15,13 @@ import type { AppConfig } from '../lib/config/env';
 import { createHttpClient } from '../services/http';
 import { crearFetchFalso, type FetchFalso, type Manejador } from './respuestas';
 
-export const CONFIG_DE_PRUEBA: AppConfig = { apiBaseUrl: 'http://api.de-prueba.test' };
+export const CONFIG_DE_PRUEBA: AppConfig = {
+  apiBaseUrl: 'http://api.de-prueba.test',
+  // Origen del sitio distinto del del API, a proposito: si algun dia el
+  // codigo confundiera los dos, las pruebas de `canonical` y `og:url` lo
+  // verian en lugar de coincidir por casualidad.
+  siteBaseUrl: 'http://sitio.de-prueba.test',
+};
 
 export function renderRuta(
   ruta: string,
