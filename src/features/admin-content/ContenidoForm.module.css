@@ -1,0 +1,6 @@
+/* La casilla de destacado necesita su propia caja para no heredar el ancho. */
+.casilla {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}

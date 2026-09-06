@@ -1,0 +1,23 @@
+/*
+ * Galeria de medios: rejilla `auto-fit`, sin media queries. A 320 px queda una
+ * sola columna sin que nadie tenga que declararlo.
+ */
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.miniatura {
+  max-inline-size: 100%;
+  block-size: auto;
+  border-radius: var(--radius-sm);
+}
+
+.meta {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
