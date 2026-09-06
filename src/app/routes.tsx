@@ -15,10 +15,15 @@
  * 404 dentro del mismo layout, de modo que una direccion equivocada conserva
  * la navegacion del sitio (USER_FLOWS A.11).
  *
- * Las rutas del panel administrativo llegan en `Task/015`.
+ * El subarbol del panel llega en `rutasDelPanel`, **cargado en diferido** y
+ * montado **antes** del comodin: si fuera despues, `*` lo absorberia entero.
+ * Este archivo no importa nada del panel de forma estatica — solo la tabla de
+ * rutas, que a su vez usa `import()` dinamico—, que es lo que mantiene el
+ * codigo administrativo fuera del grafo de carga del sitio publico (**P-05**).
  */
 import type { RouteObject } from 'react-router';
 
+import { rutasDelPanel } from './rutasDelPanel';
 import { SiteLayout } from './SiteLayout';
 import { RUTAS } from '../lib/rutas';
 import { AboutPage } from '../pages/AboutPage';
@@ -79,6 +84,7 @@ export const routes: RouteObject[] = [
       { path: relativa(RUTAS.buscar), element: <SearchPage /> },
     ],
   },
+  ...rutasDelPanel,
   ...developmentRoutes,
   {
     // Comodin: cualquier ruta no reconocida termina en la pagina 404 en lugar

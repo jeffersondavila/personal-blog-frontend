@@ -1,0 +1,34 @@
+/*
+ * Estilos de `FormFeedback`.
+ *
+ * El tono aporta un borde y un fondo, pero **el significado lo lleva el texto**:
+ * el requisito A-07 prohibe que el color sea el unico portador. Quien no
+ * distingue los colores lee «No se pudo…» igual.
+ */
+
+.feedback {
+  padding: var(--space-xs) var(--space-sm);
+  border: var(--border-width) solid;
+  border-radius: var(--radius-sm);
+}
+
+.mensaje {
+  margin: 0;
+}
+
+.campos {
+  margin: var(--space-2xs) 0 0;
+  padding-inline-start: var(--space-lg);
+}
+
+.error {
+  border-color: var(--color-danger-border);
+  background-color: var(--color-danger-surface);
+  color: var(--color-danger-text);
+}
+
+.exito {
+  border-color: var(--color-success-border);
+  background-color: var(--color-success-surface);
+  color: var(--color-success-text);
+}

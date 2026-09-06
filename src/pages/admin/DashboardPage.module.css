@@ -1,0 +1,28 @@
+/*
+ * Estilos del dashboard.
+ *
+ * Rejilla `auto-fit` con `minmax`: las tarjetas de conteo se reordenan solas
+ * desde 320 px hasta escritorio sin ninguna media query, que es la estrategia
+ * intrinseca heredada de `Task/013` y `Task/014`.
+ */
+
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  gap: var(--space-md);
+}
+
+.conteos,
+.lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.fecha {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
