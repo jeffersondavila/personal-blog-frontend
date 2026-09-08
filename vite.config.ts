@@ -8,10 +8,32 @@
  * lo que permite servir el mismo `dist/` detras del reverse proxy local
  * (`Task/007`) y publicarlo mas adelante en Cloudflare Pages (`Task/034`).
  */
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin } from 'vitest/config';
 
 import { construirRobotsTxt } from './robots.config';
+import { cabecerasDelSitio } from './security.config';
+
+/** Configuracion de Nginx separada de dist/: no se sirve al navegador. */
+function seguridadHttp(): Plugin {
+  let destino = '';
+  let contenido = '';
+  return {
+    name: 'personal-blog:seguridad-http',
+    apply: 'build',
+    configResolved(config) {
+      contenido = cabecerasDelSitio(config.env as Record<string, string>);
+      destino = resolve(config.root, 'node_modules/.tmp');
+    },
+    writeBundle() {
+      mkdirSync(destino, { recursive: true });
+      writeFileSync(resolve(destino, 'security-headers.nginx.conf'), contenido);
+    },
+  };
+}
 
 /**
  * Emite `robots.txt` en el build (`Task/016`, requisito E-06).
@@ -57,7 +79,7 @@ function robotsTxt(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), robotsTxt()],
+  plugins: [react(), robotsTxt(), seguridadHttp()],
   build: {
     // Rutas relativas al directorio del proyecto: `dist/` no debe contener
     // ninguna ruta absoluta de la maquina que construyo el artefacto.
