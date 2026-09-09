@@ -31,6 +31,8 @@
     // Configuracion de build de `Task/016`: genera `robots.txt`, cuya linea
     // `Sitemap:` depende del entorno y por eso no puede vivir en `public/`.
     "robots.config.ts",
-    "robots.config.test.ts"
+    "robots.config.test.ts",
+    "security.config.ts",
+    "security.config.test.ts"
   ]
 }

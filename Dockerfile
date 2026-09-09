@@ -20,7 +20,7 @@
 
 # Version de parche explicita: `22-alpine` es una etiqueta movil que cambiaria
 # sin aviso (misma regla que el Compose de infra y el Dockerfile del backend).
-FROM node:22.21.1-alpine AS builder
+FROM node:22.23.2-alpine@sha256:c610fcdfb1d5b4740dd70c284ed3cb16bb857e0f7166196e36a5501df7a3aa32 AS builder
 
 ENV CI=true
 
@@ -68,13 +68,21 @@ RUN npm run build
 # Es el equivalente local de lo que Cloudflare Pages hace por su cuenta en
 # produccion.
 # ---------------------------------------------------------------------------
-FROM nginx:1.29.3-alpine AS runtime
+FROM nginx:1.30.4-alpine@sha256:dc5069ad14f19660b141b21236140b91656bf89bbc3e2417c70ae650cd66104c AS runtime
+
+# Parche de libuuid que todavia no incorpora la imagen oficial (Task018).
+RUN apk add --no-cache libuuid=2.42.3-r1
 
 # La imagen base trae una configuracion por defecto que no hace el *fallback*
 # de la SPA. Se sustituye por la del proyecto.
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx-main.conf /etc/nginx/nginx.conf
+COPY --from=builder /build/node_modules/.tmp/security-headers.nginx.conf /etc/nginx/security-headers.conf
 
 COPY --from=builder /build/dist /usr/share/nginx/html
+
+USER nginx
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
 
 EXPOSE 8080
 
