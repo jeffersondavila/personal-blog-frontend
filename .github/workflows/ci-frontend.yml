@@ -1,0 +1,61 @@
+name: CI Frontend
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Frontend quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.23.2' # Mismo parche que el builder del Dockerfile.
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Runtime versions
+        run: |
+          node --version
+          npm --version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check
+        run: npm run typecheck
+
+      # Las guardas SEO y P-05 necesitan dist real para no omitirse.
+      - name: Production build
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: https://api.example.test
+          VITE_SITE_BASE_URL: https://example.test
+
+      - name: Tests
+        run: npm run test:run
+
+      - name: Audit dependencies (S-09)
+        run: npm audit
