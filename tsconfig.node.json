@@ -17,6 +17,9 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "verbatimModuleSyntax": true,
+    // Los imports explicitos .ts tambien se resuelven con el loader nativo.
+    // Es compatible con noEmit: este proyecto no emite JavaScript con tsc.
+    "allowImportingTsExtensions": true,
     "noEmit": true,
 
     "strict": true,
@@ -27,6 +30,7 @@
   },
   "include": [
     "vite.config.ts",
+    "vite.config.test.ts",
     "eslint.config.js",
     // Configuracion de build de `Task/016`: genera `robots.txt`, cuya linea
     // `Sitemap:` depende del entorno y por eso no puede vivir en `public/`.

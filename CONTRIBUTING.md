@@ -98,6 +98,55 @@ estilo distinto sin que nadie lo haya decidido. El motivo está en `.prettierign
 
 Antes de marcar una tarea como lista, los cinco deben terminar sin errores.
 
+### Integración continua
+
+[CI Frontend](.github/workflows/ci-frontend.yml) ejecuta esos gates y `npm audit`
+en cada `push` y `pull_request`, sin filtros de ramas ni rutas. Un único job en
+Ubuntu 24.04 instala con `npm ci`, comprueba formato, lint y tipos, construye,
+ejecuta la suite canónica y audita las dependencias. **El build precede a los
+tests** para que las guardas SEO y P-05 comprueben `dist/` y no se omitan.
+
+El runtime es **Node 22.23.2**, el mismo parche del builder del Dockerfile; se usa
+el npm incluido. Para reproducirlo localmente:
+
+```powershell
+npm ci
+npm run format:check
+npm run lint
+npm run typecheck
+$env:VITE_API_BASE_URL = 'https://api.example.test'
+$env:VITE_SITE_BASE_URL = 'https://example.test'
+npm run build
+npm run test:run
+npm audit
+```
+
+Los dos orígenes son ficticios y públicos. El build conserva la validación
+*fail-closed*; no requiere backend, Docker, servicios de datos ni credenciales.
+No se publican los artefactos generados. `npm audit` incluye dependencias de
+desarrollo y producción y conserva su fallo predeterminado ante cualquier
+vulnerabilidad; también falla ante un error de consulta. Es la automatización
+del comando verificado en Task018 para **S-09**, sin excepciones ni umbral nuevo.
+
+Las dos acciones oficiales se fijan por SHA de commit, con su versión en un
+comentario. Al actualizarlas se revisan las notas de versión y se vuelve a
+validar CI. El token tiene `contents: read` y checkout no persiste credenciales.
+La caché de setup-node guarda la caché de npm, con clave derivada del lockfile;
+no guarda `node_modules`, builds ni secretos. Cada ejecución tiene un límite
+de **10 minutos**. La concurrencia agrupa por workflow, evento y referencia:
+una ejecución nueva cancela solo la obsoleta de ese mismo grupo.
+
+Los tests conservan sus timeouts y paralelismo. Cualquier fallo intermitente se
+investiga como defecto, con evidencia; no se oculta cambiando esos parámetros.
+El escaneo del historial de secretos corresponde a **Task021** y al cierre
+global de ETAPA 06. Esta CI no despliega ni configura protecciones de ramas.
+
+`vite.config.test.ts` carga la configuración real con el loader vigente y
+comprueba que Vite no detecte incompatibilidades con su futuro loader nativo.
+Los imports `.ts` explícitos se permiten solo en el proyecto TypeScript de
+configuración, que tiene `noEmit`; el loader de producción sigue siendo el
+predeterminado de Vite.
+
 ### Reglas de pruebas
 
 - Las pruebas viven **junto al archivo que prueban** (`env.ts` y `env.test.ts`).

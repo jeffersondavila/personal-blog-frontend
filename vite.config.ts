@@ -14,8 +14,8 @@ import { resolve } from 'node:path';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin } from 'vitest/config';
 
-import { construirRobotsTxt } from './robots.config';
-import { cabecerasDelSitio } from './security.config';
+import { construirRobotsTxt } from './robots.config.ts';
+import { cabecerasDelSitio } from './security.config.ts';
 
 /** Configuracion de Nginx separada de dist/: no se sirve al navegador. */
 function seguridadHttp(): Plugin {
